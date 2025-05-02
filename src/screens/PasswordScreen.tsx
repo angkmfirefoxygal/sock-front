@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import Header from '../components/Header'; // 헤더 불러오기
 
 export default function PasswordScreen() {
   const [password, setPassword] = useState('');
@@ -17,7 +18,7 @@ export default function PasswordScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>비밀번호 입력</Text>
+      <Header title="비밀번호 입력" />
 
       <Text style={styles.label}>비밀번호 입력</Text>
       <View style={styles.inputContainer}>
@@ -49,7 +50,6 @@ export default function PasswordScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: '#fff' },
-  title: { fontSize: 20, fontWeight: 'bold', alignSelf: 'center', marginBottom: 32 },
   label: { fontSize: 14, marginBottom: 4, color: '#000' },
   inputContainer: {
     borderColor: '#eee',
