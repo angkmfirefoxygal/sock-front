@@ -1,10 +1,16 @@
-
-
 import React from 'react';
-import BottomTabs from './src/navigation/BottomTabs';
-import PasswordScreen from './src/screens/PasswordScreen';
-function App(): React.JSX.Element {
-  return <PasswordScreen />;
-}
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import SetPasswordScreen from './src/screens/SetPasswordScreen';
+import EnterPasswordScreen from './src/screens/EnterPasswordScreen';
+import WalletStartScreen from './src/screens/WalletStartScreen';
+import GenerateMnemonicScreen from './src/screens/GenerateMnemonicScreen';
+import VerifyMnemonicScreen from './src/screens/VerifyMnemonicScreen';
+import BottomTabNavigator from './src/navigation/BottomTabs';
 
-export default App;
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <BottomTabNavigator />
+    </SafeAreaProvider>
+  );
+}
