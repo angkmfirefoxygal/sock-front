@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function HelpScreen() {
+export default function SendTokenScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>도움말 화면</Text>
+      <Text>거래 화면</Text>
     </View>
   );
 }

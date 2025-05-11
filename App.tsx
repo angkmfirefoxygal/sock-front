@@ -6,7 +6,7 @@ import WalletStartScreen from './src/screens/WalletStartScreen';
 import GenerateMnemonicScreen from './src/screens/GenerateMnemonicScreen';
 import VerifyMnemonicScreen from './src/screens/VerifyMnemonicScreen';
 import BottomTabNavigator from './src/navigation/BottomTabs';
-
+import AddressInputScreen from './src/screens/AdressInputScreen';
 export default function App() {
   return (
     <SafeAreaProvider>

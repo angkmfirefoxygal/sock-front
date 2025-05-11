@@ -3,10 +3,10 @@ import {
   Modal,
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Pressable,
 } from 'react-native';
+import CommonButton from '../CommonButton'; // ✅ 버튼 컴포넌트 import (경로는 필요시 조정)
 
 type WalletCreationModalProps = {
   visible: boolean;
@@ -25,39 +25,34 @@ export default function WalletCreationModal({
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          {/* 닫기 버튼 (오른쪽 상단 X) */}
+          {/* 닫기 버튼 */}
           <Pressable onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>×</Text>
           </Pressable>
 
-          {/* 체크 아이콘 원형 */}
+          {/* 체크 아이콘 */}
           <View style={styles.circle}>
             <Text style={styles.checkmark}>✓</Text>
           </View>
 
-          {/* 타이틀 / 설명 */}
+          {/* 제목 / 설명 */}
           <Text style={styles.title}>지갑 생성 방법을 선택해주세요</Text>
           <Text style={styles.subtitle}>도움말입니다</Text>
 
-          {/* 버튼들 */}
-          <View style={{ width: '100%', marginTop: 50}}>
-            <TouchableOpacity style={styles.primaryButton} onPress={onSelectHardware}>
-              <Text style={styles.buttonText}>하드웨어 지갑 생성</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.secondaryButton, { marginTop: 12 }]}
+          {/* 버튼 영역 */}
+          <View style={{ width: '100%', marginTop: 50 }}>
+            <CommonButton label="하드웨어 지갑 생성" onPress={onSelectHardware} />
+            <CommonButton
+              label="모바일 지갑 생성"
               onPress={onSelectMobile}
-            >
-              <Text style={styles.buttonText}>모바일 지갑 생성</Text>
-            </TouchableOpacity>
+              variant="secondary"
+            />
           </View>
         </View>
       </View>
     </Modal>
   );
 }
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -109,24 +104,5 @@ const styles = StyleSheet.create({
     color: '#888',
     marginBottom: 24,
     textAlign: 'center',
-  },
-  primaryButton: {
-    backgroundColor: '#073686',
-    borderRadius: 20,
-    paddingVertical: 15,
-    width: '100%',
-    alignItems: 'center'
-  },
-  secondaryButton: {
-    backgroundColor: '#a1a7c2',
-    borderRadius: 20,
-    paddingVertical: 15,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
 });

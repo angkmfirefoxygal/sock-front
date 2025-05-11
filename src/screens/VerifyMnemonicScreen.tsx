@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
 
@@ -22,6 +31,7 @@ export default function VerifyMnemonicScreen() {
         onChangeText={(text) => handleChange(text, index)}
         autoCapitalize="none"
         autoCorrect={false}
+        returnKeyType="next"
       />
     </View>
   );
@@ -31,9 +41,18 @@ export default function VerifyMnemonicScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Header title="복구 구문 입력" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0} // 필요시 조정
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Header title="복구 구문 입력" />
+
         <FlatList
           data={inputs}
           keyExtractor={(_, index) => index.toString()}
@@ -43,18 +62,18 @@ export default function VerifyMnemonicScreen() {
           scrollEnabled={false}
           contentContainerStyle={styles.flatListContent}
         />
+
         <CommonButton label="확인" onPress={handleConfirm} style={{ marginTop: 32 }} />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 24, alignItems: 'center' },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    padding: 24,
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
   flatListContent: {
     alignItems: 'center',

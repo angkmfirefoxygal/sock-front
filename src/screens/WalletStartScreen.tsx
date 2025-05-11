@@ -1,11 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import WalletCreationModal from '../components/modals/WalletCreationMethodMadal';
 import React, { useState } from 'react';
-
+import { View, Text, StyleSheet } from 'react-native';
+import WalletCreationModal from '../components/modals/WalletCreationMethodMadal';
+import CommonButton from '../components/CommonButton';
 
 export default function WalletStartScreen() {
-
-  const [modalVisible, setModalVisible] = useState(false); // 모달 상태 관리
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -13,16 +12,18 @@ export default function WalletStartScreen() {
 
       <View style={styles.circle} />
 
-      <TouchableOpacity
-        style={[styles.button, styles.primaryButton]}
-        onPress={() => setModalVisible(true)} // 모달 오픈
-      >
-        <Text style={styles.buttonText}>지갑 생성</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonGroup}>
+        <CommonButton
+          label="지갑 생성"
+          onPress={() => setModalVisible(true)}
+        />
 
-      <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-        <Text style={[styles.buttonText, { color: '#fff' }]}>지갑 복구</Text>
-      </TouchableOpacity>
+        <CommonButton
+          label="지갑 복구"
+          onPress={() => {}}
+          variant="secondary"
+        />
+      </View>
 
       <WalletCreationModal
         visible={modalVisible}
@@ -61,23 +62,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#073686',
     marginBottom: 150,
   },
-  button: {
+  buttonGroup: {
     width: '100%',
-    maxWidth: 240,
-    paddingVertical: 15,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  primaryButton: {
-    backgroundColor: '#073686',
-  },
-  disabledButton: {
-    backgroundColor: '#a1a7c2',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
+    alignItems: 'center'
   },
 });

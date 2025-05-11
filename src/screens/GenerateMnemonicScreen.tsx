@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
 
 export default function GenerateMnemonicScreen() {
+  // 추후 api 연결하면 랜덤으로 받아옴
   const [mnemonic] = useState([
     'garage', 'pencil', 'ocean', 'sunset',
     'voice', 'ticket', 'drum', 'yellow',
