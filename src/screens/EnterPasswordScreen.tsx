@@ -10,7 +10,6 @@ export default function EnterPasswordScreen() {
 
   const handleConfirm = () => {
     if (password !== '1234') { //추후 로컬에 저장한 비밀번호와 비교 
-        // 지갑앱은 보통 db가 아니라 기기에 비밀번호와 저장?
       setError('비밀번호가 일치하지 않습니다.');
     } else {
       setError('');

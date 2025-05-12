@@ -7,10 +7,16 @@ import GenerateMnemonicScreen from './src/screens/GenerateMnemonicScreen';
 import VerifyMnemonicScreen from './src/screens/VerifyMnemonicScreen';
 import BottomTabNavigator from './src/navigation/BottomTabs';
 import AddressInputScreen from './src/screens/AdressInputScreen';
+import ReceiveTokenScreen from './src/screens/ReceiveTokenScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './src/navigation/AppNavigator';
+import SelectAmountScreen from './src/screens/SelectAmountScreen';
 export default function App() {
   return (
     <SafeAreaProvider>
-      <BottomTabNavigator />
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

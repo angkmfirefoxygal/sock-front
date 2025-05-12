@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 1
   },
 });

@@ -2,15 +2,18 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CommonButton from '../components/CommonButton';
+
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootStackParamList';
+
 
 const tokens = [
   { id: '1', name: 'POL', amount: '1 POL', icon: require('../assets/logo/polygon_logo.png') }
 ];
 
-const navigation = useNavigation();
-
 export default function HomeScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const renderItem = ({ item }: { item: typeof tokens[0] }) => (
     <View style={styles.tokenItem}>
       <View style={styles.tokenLeft}>
@@ -47,8 +50,8 @@ export default function HomeScreen() {
 
         {/* 버튼 */}
         <View style={styles.buttonGroup}>
-          <CommonButton label="보내기" onPress={() => {}} />
-          <CommonButton label="받기" onPress={() => {}} variant="secondary" />
+          <CommonButton label="보내기" onPress={() => navigation.navigate('SendToken')} />
+          <CommonButton label="받기" onPress={() => navigation.navigate('ReceiveToken')} variant="secondary" />
         </View>
       </View>
     </SafeAreaView>

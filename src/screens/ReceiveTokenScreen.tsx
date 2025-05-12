@@ -1,5 +1,4 @@
-// src/screens/ReceiveScreen.tsx
-
+// src/screens/ReceiveTokenScreen.tsx
 import React from 'react';
 import {
   View,
@@ -9,20 +8,23 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CommonButton from '../components/CommonButton';
 
 export default function ReceiveTokenScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const walletAddress = '0x12345687898';
 
   const handleCopy = () => {
-    console.log('주소 복사:', walletAddress);
-    // 클립보드 복사: Clipboard.setString(walletAddress); // 필요 시 import
+    Clipboard.setString(walletAddress);
+    console.log('주소 복사됨:', walletAddress);
   };
 
   const handleShare = () => {
     console.log('공유하기 눌림');
-    // Share API 연동 가능
+    // TODO: Share API 연동
   };
 
   const handleClose = () => {
@@ -30,20 +32,26 @@ export default function ReceiveTokenScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* 닫기 버튼 */}
-      <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+      <TouchableOpacity
+        onPress={handleClose}
+        style={[styles.closeButton, { top: insets.top + 8 }]}
+      >
         <Text style={styles.closeText}>×</Text>
       </TouchableOpacity>
 
       {/* QR 코드 */}
       <View style={styles.qrBox}>
         <Image
-          source={require('../assets/qr_placeholder.png')} // TODO: 실제 QR 이미지로 교체
+          source={require('../assets/icon/qrcode_icon.png')}
           style={styles.qrImage}
         />
         <TouchableOpacity style={styles.downloadIcon}>
-          <Text style={{ fontSize: 16 }}>⬇️</Text>
+          <Image
+            source={require('../assets/icon/download_icon.png')}
+            style={styles.downloadImage}
+          />
         </TouchableOpacity>
       </View>
 
@@ -52,7 +60,7 @@ export default function ReceiveTokenScreen() {
         <Text style={styles.addressText}>주소: {walletAddress}</Text>
         <TouchableOpacity onPress={handleCopy}>
           <Image
-            source={require('../assets/copy_icon.png')}
+            source={require('../assets/icon/copy_icon.png')}
             style={styles.copyIcon}
           />
         </TouchableOpacity>
@@ -67,13 +75,12 @@ export default function ReceiveTokenScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
     backgroundColor: '#fff',
     justifyContent: 'center',
   },
   closeButton: {
     position: 'absolute',
-    top: 24,
     right: 24,
     zIndex: 10,
   },
@@ -100,6 +107,11 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
+  downloadImage: {
+    width: 16,
+    height: 16,
+    tintColor: '#333',
+  },
   addressRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -114,5 +126,6 @@ const styles = StyleSheet.create({
   copyIcon: {
     width: 16,
     height: 16,
+    tintColor: '#333',
   },
 });
