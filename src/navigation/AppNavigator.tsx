@@ -5,7 +5,9 @@ import BottomTabNavigator from './BottomTabs';
 import ReceiveTokenScreen from '../screens/ReceiveTokenScreen';
 import SendTokenScreen from '../screens/SendTokenScreen';
 import SelectAmountScreen from '../screens/SelectAmountScreen';
+import QRScannerScreen from '../screens/QRScannerScreen';
 const Stack = createNativeStackNavigator();
+
 
 export default function AppNavigator() {
   return (
@@ -14,6 +16,7 @@ export default function AppNavigator() {
       <Stack.Screen name="ReceiveToken" component={ReceiveTokenScreen} />
       <Stack.Screen name="SendToken" component={SendTokenScreen} />
       <Stack.Screen name="SelectAmount" component={SelectAmountScreen} />
+      <Stack.Screen name="QRScanner" component={QRScannerScreen} />
     </Stack.Navigator>
   );
 }

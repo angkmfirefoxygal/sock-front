@@ -4,4 +4,5 @@ export type RootStackParamList = {
   ReceiveToken: undefined;
   SendToken: undefined;
   SelectAmount:undefined;
+  QRScanner:undefined;
 };

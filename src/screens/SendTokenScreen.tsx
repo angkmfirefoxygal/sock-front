@@ -75,7 +75,9 @@ export default function SendTokenScreen() {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.cancel}>취소</Text>
           </TouchableOpacity>
-          <Image source={require('../assets/icon/qrcode_icon.png')} style={styles.qrIcon} />
+          <TouchableOpacity onPress={() => navigation.navigate('QRScanner')}>
+            <Image source={require('../assets/icon/qrcode_icon.png')} style={styles.qrIcon} />
+          </TouchableOpacity>
         </View>
 
         {/* 입력창 */}
