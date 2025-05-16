@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import WalletCreationModal from '../components/modals/WalletCreationMethodMadal';
 import CommonButton from '../components/CommonButton';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootStackParamList';
 
 export default function WalletStartScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SOCK</Text>
@@ -20,7 +23,7 @@ export default function WalletStartScreen() {
 
         <CommonButton
           label="지갑 복구"
-          onPress={() => {}}
+          onPress={() => navigation.navigate('RecoverMnemonic')}
           variant="secondary"
         />
       </View>
@@ -33,8 +36,8 @@ export default function WalletStartScreen() {
           setModalVisible(false);
         }}
         onSelectMobile={() => {
-          console.log('모바일 지갑 선택');
           setModalVisible(false);
+          navigation.navigate('GenerateMnemonic'); // ✅ 여기서 이동!
         }}
       />
     </View>

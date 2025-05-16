@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
 
@@ -7,13 +13,37 @@ export default function EnterPasswordScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const handleConfirm = async () => {
+    setError('');
 
-  const handleConfirm = () => {
-    if (password !== '1234') { //추후 로컬에 저장한 비밀번호와 비교 
-      setError('비밀번호가 일치하지 않습니다.');
-    } else {
-      setError('');
-      console.log('비밀번호 인증 성공');
+    try {
+      const res = await fetch('http://43.201.26.30:8080/wallets/verify-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || '비밀번호 인증 실패');
+      }
+
+      if (json.status === 'password match') {
+        console.log('✅ 비밀번호 인증 성공');
+        // TODO: 다음 화면으로 이동
+      }
+    } catch (err: any) {
+      console.error('❌ 인증 실패:', err.message);
+      if (err.message === 'Password mismatch') {
+        setError('비밀번호가 일치하지 않습니다.');
+      } else if (err.message === 'No password found') {
+        setError('저장된 비밀번호가 없습니다.');
+      } else {
+        setError('오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -42,7 +72,12 @@ export default function EnterPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, backgroundColor: '#fff', alignItems: 'center' },
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
   circle: {
     width: 160,
     height: 160,
@@ -51,7 +86,12 @@ const styles = StyleSheet.create({
     marginTop: 60,
     marginBottom: 48,
   },
-  label: { fontSize: 14, alignSelf: 'flex-start', marginBottom: 4, color: '#000' },
+  label: {
+    fontSize: 14,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+    color: '#000',
+  },
   inputContainer: {
     width: '100%',
     flexDirection: 'row',
@@ -73,5 +113,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     alignSelf: 'flex-start',
     marginBottom: 8,
-  }
+  },
 });

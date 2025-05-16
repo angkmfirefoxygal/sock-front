@@ -12,6 +12,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CommonButton from '../components/CommonButton';
 import * as Keychain from 'react-native-keychain';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs';
 
 const WALLET_KEY = 'wallet';
 
@@ -51,10 +53,34 @@ export default function ReceiveTokenScreen() {
     }
   };
 
-  const handleShare = () => {
-    console.log('공유하기 눌림');
-    // TODO: Share API 연동
-  };
+
+const handleShare = async () => {
+  if (!qrUri) return;
+
+  try {
+    const fileName = 'qr_share.png';
+    const path = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+    // 1. 다운로드
+    const downloadResult = await RNFS.downloadFile({
+      fromUrl: qrUri,
+      toFile: path,
+    }).promise;
+
+    if (downloadResult.statusCode === 200) {
+      // 2. 공유 시트 열기
+      await Share.open({
+        url: 'file://' + path,
+        type: 'image/png',
+        failOnCancel: false,
+      });
+    } else {
+      console.warn('QR 다운로드 실패');
+    }
+  } catch (err) {
+    console.error('공유 실패:', err);
+  }
+};
 
   const handleClose = () => {
     navigation.goBack();

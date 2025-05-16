@@ -1,5 +1,9 @@
 // src/navigation/RootStackParamList.ts
 export type RootStackParamList = {
+  RecoverMnemonic: undefined;
+  SetPassword: undefined;
+  EnterPassword: undefined;
+  WalletStart: undefined;
   VerifyMnemonic: { mnemonic: string[] }; // 니모닉 배열도 함께 받아야함
   GenerateMnemonic: undefined; 
   Main: undefined;

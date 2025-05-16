@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 
 const settings = [
   { title: '일반', subtitle: '통화 변환, 언어 변경' },
-  { title: '보안 & 개인정보 보호', subtitle: '비밀번호 변경, 비밀번호복구구문, 지갑 삭제' },
+  { title: '보안 & 개인정보 보호', subtitle: '비밀번호 변경, 비밀번호 복구 구문, 지갑 삭제' },
   { title: '네트워크', subtitle: '맞춤 PRC 네트워크 추가 및 편집' },
   { title: '고급', subtitle: '개발자 기능 액세스, 테스트넷 설정, 상태 로그, 계정 초기화' },
   { title: '연락처', subtitle: '계정 추가, 편집, 제거 및 관리' },
