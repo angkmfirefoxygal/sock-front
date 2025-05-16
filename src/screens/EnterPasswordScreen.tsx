@@ -8,7 +8,9 @@ import {
 } from 'react-native';
 import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
-
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootStackParamList';
 export default function EnterPasswordScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

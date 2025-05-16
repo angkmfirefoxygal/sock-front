@@ -39,7 +39,7 @@ export default function SetPasswordScreen() {
       }
 
       console.log('✅ 비밀번호 저장 성공:', json.status);
-      // TODO: 저장 후 이동할 화면 처리 등 추가
+      navigation.replace('EnterPassword'); // ✅ 성공 시 이동
     } catch (err: any) {
       console.error('❌ 서버 저장 실패:', err.message);
       setError(err.message);

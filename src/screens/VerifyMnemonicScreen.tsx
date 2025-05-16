@@ -1,3 +1,4 @@
+// 생성 검증 화면
 import React, { useState } from 'react';
 import {
   View,
