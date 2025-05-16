@@ -1,18 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
+import { useNavigation } from '@react-navigation/native'; 
+import { RootStackParamList } from '../navigation/RootStackParamList';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type GenerateMnemonicScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'GenerateMnemonic'
+>;
+
 
 export default function GenerateMnemonicScreen() {
-  // 추후 api 연결하면 랜덤으로 받아옴
-  const [mnemonic] = useState([
-    'garage', 'pencil', 'ocean', 'sunset',
-    'voice', 'ticket', 'drum', 'yellow',
-    'stone', 'brisk', 'label', 'equal',
-    'maple', 'orchard', 'moment', 'scheme',
-    'rely', 'metal', 'hint', 'jeans',
-    'brave', 'funny', 'dust', 'finish'
-  ]);
+  const navigation = useNavigation<GenerateMnemonicScreenNavigationProp>();
+  const [mnemonic, setMnemonic] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // API 호출
+useEffect(() => {
+  const fetchMnemonic = async () => {
+    try {
+      const res = await fetch('http://43.201.26.30:8080/wallets/create');
+      const data = await res.json();
+
+      //  문자열 → 배열 변환 추가!
+      if (typeof data.mnemonic === 'string') {
+        setMnemonic(data.mnemonic.trim().split(' '));
+      } else {
+        throw new Error('예상과 다른 응답 형식');
+      }
+    } catch (error) {
+      console.error('❌ 니모닉 생성 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMnemonic();
+}, []);
 
   const renderItem = ({ item, index }: { item: string; index: number }) => (
     <View style={styles.wordBox}>
@@ -24,36 +50,38 @@ export default function GenerateMnemonicScreen() {
   );
 
   function handleConfirm(): void {
-    console.log('확인 버튼 눌림');
+    navigation.navigate('VerifyMnemonic', { mnemonic });
   }
 
   return (
     <View style={styles.container}>
       <Header title="지갑 복구 구문" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <FlatList
-          data={mnemonic}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={renderItem}
-          numColumns={2}
-          columnWrapperStyle={{ gap: 32 }}
-          scrollEnabled={false}
-          contentContainerStyle={styles.flatListContent}
-        />
-
-        {/* ✅ 버튼도 스크롤 안에 포함되게 */}
-        <CommonButton
-          label="확인"
-          onPress={handleConfirm}
-          style={{ marginTop: 32 }}
-        />
-      </ScrollView>
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" style={{ marginTop: 100 }} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <FlatList
+            data={mnemonic}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={renderItem}
+            numColumns={2}
+            columnWrapperStyle={{ gap: 32 }}
+            scrollEnabled={false}
+            contentContainerStyle={styles.flatListContent}
+          />
+          <CommonButton
+            label="확인"
+            onPress={handleConfirm}
+            style={{ marginTop: 32 }}
+          />
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 24, backgroundColor: '#fff', alignItems: 'center' },
+  container: { flex: 1, padding: 24, backgroundColor: '#fff', alignItems: 'center' },
   scrollContent: {
     paddingHorizontal: 24,
     paddingBottom: 40,

@@ -6,7 +6,7 @@ import WalletStartScreen from './src/screens/WalletStartScreen';
 import GenerateMnemonicScreen from './src/screens/GenerateMnemonicScreen';
 import VerifyMnemonicScreen from './src/screens/VerifyMnemonicScreen';
 import BottomTabNavigator from './src/navigation/BottomTabs';
-import AddressInputScreen from './src/screens/AdressInputScreen';
+//import AddressInputScreen from './src/screens/AdressInputScreen';
 import ReceiveTokenScreen from './src/screens/ReceiveTokenScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';

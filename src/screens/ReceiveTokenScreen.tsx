@@ -1,25 +1,54 @@
-// src/screens/ReceiveTokenScreen.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CommonButton from '../components/CommonButton';
+import * as Keychain from 'react-native-keychain';
+
+const WALLET_KEY = 'wallet';
 
 export default function ReceiveTokenScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const walletAddress = '0x12345687898';
+
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [qrUri, setQrUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStoredAddress = async () => {
+      try {
+        const creds = await Keychain.getGenericPassword({ service: WALLET_KEY });
+
+        if (creds) {
+          setWalletAddress(creds.password);
+          setQrUri(`http://43.201.26.30:8080/wallets/qrcode?address=${creds.password}`);
+        } else {
+          console.warn('저장된 주소가 없습니다.');
+        }
+      } catch (error) {
+        console.error('QR 코드 로드 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStoredAddress();
+  }, []);
 
   const handleCopy = () => {
-    Clipboard.setString(walletAddress);
-    console.log('주소 복사됨:', walletAddress);
+    if (walletAddress) {
+      Clipboard.setString(walletAddress);
+      console.log('주소 복사됨:', walletAddress);
+    }
   };
 
   const handleShare = () => {
@@ -43,21 +72,20 @@ export default function ReceiveTokenScreen() {
 
       {/* QR 코드 */}
       <View style={styles.qrBox}>
-        <Image
-          source={require('../assets/icon/qrcode_icon.png')}
-          style={styles.qrImage}
-        />
-        <TouchableOpacity style={styles.downloadIcon}>
-          <Image
-            source={require('../assets/icon/download_icon.png')}
-            style={styles.downloadImage}
-          />
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" />
+        ) : qrUri ? (
+          <Image source={{ uri: qrUri }} style={styles.qrImage} />
+        ) : (
+          <Text style={{ color: '#999' }}>QR 코드 불러오기 실패</Text>
+        )}
       </View>
 
       {/* 주소 텍스트 + 복사 아이콘 */}
       <View style={styles.addressRow}>
-        <Text style={styles.addressText}>주소: {walletAddress}</Text>
+        <Text style={styles.addressText}>
+          {walletAddress ? walletAddress : '로딩 중...'}
+        </Text>
         <TouchableOpacity onPress={handleCopy}>
           <Image
             source={require('../assets/icon/copy_icon.png')}
@@ -95,22 +123,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 20,
     position: 'relative',
   },
   qrImage: {
     width: 160,
     height: 160,
-  },
-  downloadIcon: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  downloadImage: {
-    width: 16,
-    height: 16,
-    tintColor: '#333',
+    resizeMode: 'contain',
   },
   addressRow: {
     flexDirection: 'row',

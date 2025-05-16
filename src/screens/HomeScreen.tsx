@@ -1,19 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CommonButton from '../components/CommonButton';
-
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
+import * as Keychain from 'react-native-keychain';
 
-
-const tokens = [
-  { id: '1', name: 'POL', amount: '1 POL', icon: require('../assets/logo/polygon_logo.png') }
-];
+const WALLET_KEY = 'wallet';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const [address, setAddress] = useState<string | null>(null);
+  const [tokens, setTokens] = useState<{ id: string; name: string; amount: string; icon: any }[]>([]);
+
+  useEffect(() => {
+    const fetchAddressAndBalance = async () => {
+      try {
+          const creds = await Keychain.getGenericPassword({ service: WALLET_KEY });
+          let finalAddress: string | null = null;
+
+          if (creds) {
+            finalAddress = creds.password;
+          }
+
+        // ✅ 2. 없으면 새 주소 생성
+        if (!finalAddress) {
+          const res = await fetch('http://43.201.26.30:8080/wallets/address');
+          const data = await res.json();
+          finalAddress = data.address;
+
+          // ✅ 저장
+          if (finalAddress) {
+            await Keychain.setGenericPassword('wallet_user', finalAddress, { service: WALLET_KEY });
+          }
+        }
+
+        setAddress(finalAddress);
+
+        // ✅ 3. 잔액 조회
+        if (finalAddress) {
+          const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${finalAddress}`);
+          const balData = await balRes.json();
+          const ethBalance = `${Number(balData.balance).toFixed(6)} ETH`;
+
+          setTokens([
+            {
+              id: '1',
+              name: 'ETH',
+              amount: ethBalance,
+              icon: require('../assets/logo/ethereum_logo.png'),
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('주소 또는 잔액 조회 실패:', error);
+      }
+    };
+
+    fetchAddressAndBalance();
+  }, []);
+
   const renderItem = ({ item }: { item: typeof tokens[0] }) => (
     <View style={styles.tokenItem}>
       <View style={styles.tokenLeft}>
@@ -30,9 +78,11 @@ export default function HomeScreen() {
         {/* 상단 계정 정보 영역 */}
         <View style={styles.header}>
           <Image source={require('../assets/icon/network_icon.png')} style={styles.icon} />
-          <View style={styles.accountInfo}>
+          <View style={styles.accountTextContainer}>
             <Text style={styles.accountName}>Account 1</Text>
-            <Text style={styles.accountAddress}>0×12345687898</Text>
+            <Text style={styles.accountAddress}>
+              {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '주소 로딩 중...'}
+            </Text>
           </View>
         </View>
 
@@ -57,6 +107,7 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -67,17 +118,18 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 24,
   },
   icon: {
-    width: 20,
-    height: 20,
-    marginRight: 12,
+    position: 'absolute',
+    left: 0,
+    width: 24,
+    height: 24,
   },
-  accountInfo: {
-    justifyContent: 'center',
+  accountTextContainer: {
+    alignItems: 'center',
   },
   accountName: {
     fontWeight: 'bold',
@@ -116,7 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  buttonGroup: { // 버튼 아래 정렬을 위해서!!
+  buttonGroup: {
     width: '100%',
     alignItems: 'center',
   },

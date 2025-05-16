@@ -1,5 +1,4 @@
-// src/screens/SendTokenScreen.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   View,
@@ -18,31 +17,30 @@ import CommonButton from '../components/CommonButton';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
 
-const recentAddresses = [
-  {
-    id: '1',
-    label: 'Account 2',
-    address: '0x123bh45jh678907',
-    avatar: require('../assets/avatar/avatar1.png'),
-  },
-  {
-    id: '2',
-    label: 'Account 3',
-    address: '0x23d5547677d9809',
-    avatar: require('../assets/avatar/avatar2.png'),
-  },
-  {
-    id: '3',
-    label: 'Account 4',
-    address: '0xcd065095034gflv4',
-    avatar: require('../assets/avatar/avatar3.png'),
-  },
-];
+type RecentAddress = {
+  address: string;
+  last_used: string;
+};
 
 export default function SendTokenScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();    
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const [address, setAddress] = useState('');
+  const [recentAddresses, setRecentAddresses] = useState<RecentAddress[]>([]);
+
+  useEffect(() => {
+    const fetchRecentAddresses = async () => {
+      try {
+        const res = await fetch('http://43.201.26.30:8080/wallets/recent');
+        const data: RecentAddress[] = await res.json();
+        setRecentAddresses(data);
+      } catch (error) {
+        console.error('최근 주소 불러오기 실패:', error);
+      }
+    };
+
+    fetchRecentAddresses();
+  }, []);
 
   const handlePaste = async () => {
     const content = await Clipboard.getString();
@@ -54,12 +52,12 @@ export default function SendTokenScreen() {
     setAddress(addr);
   };
 
-  const renderItem = ({ item }: { item: typeof recentAddresses[0] }) => (
+  const renderItem = ({ item }: { item: RecentAddress }) => (
     <TouchableOpacity style={styles.recentItem} onPress={() => handleRecentPress(item.address)}>
-      <Image source={item.avatar} style={styles.avatar} />
+      <Image source={require('../assets/avatar/avatar1.png')} style={styles.avatar} />
       <View>
-        <Text style={styles.accountLabel}>{item.label}</Text>
-        <Text style={styles.accountAddress}>{item.address}</Text>
+        <Text style={styles.accountLabel}>{item.address.slice(0, 6)}...{item.address.slice(-4)}</Text>
+        <Text style={styles.accountAddress}>최근 사용: {new Date(item.last_used).toLocaleString()}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -93,7 +91,7 @@ export default function SendTokenScreen() {
           />
           <TouchableOpacity onPress={handlePaste}>
             <Image
-              source={require('../assets/icon/paste_icon.png')}
+              source={require('../assets/icon/copy_icon.png')}
               style={styles.pasteIcon}
             />
           </TouchableOpacity>
@@ -104,7 +102,7 @@ export default function SendTokenScreen() {
         <FlatList
           data={recentAddresses}
           renderItem={renderItem}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.address}
         />
 
         {/* 버튼 */}
@@ -126,7 +124,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   cancel: {
     fontSize: 14,
@@ -138,7 +136,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    marginTop:40,
+    marginTop: 40,
     marginBottom: 10,
   },
   inputRow: {
@@ -156,8 +154,8 @@ const styles = StyleSheet.create({
     height: 44,
   },
   pasteIcon: {
-    width: 18,
-    height: 18,
+    width: 15,
+    height: 15,
     tintColor: '#666',
   },
   recentTitle: {
