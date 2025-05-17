@@ -16,30 +16,36 @@ export default function HomeScreen() {
   const [tokens, setTokens] = useState<{ id: string; name: string; amount: string; icon: any }[]>([]);
 
   useEffect(() => {
-    const fetchAddressAndBalance = async () => {
+    const fetchWalletAndBalance = async () => {
       try {
-          const creds = await Keychain.getGenericPassword({ service: WALLET_KEY });
-          let finalAddress: string | null = null;
+        const creds = await Keychain.getGenericPassword({ service: WALLET_KEY });
+        let finalAddress: string | null = null;
 
-          if (creds) {
-            finalAddress = creds.password;
-          }
+        if (creds) {
+          finalAddress = creds.password;
+        }
 
-        // ✅ 2. 없으면 새 주소 생성
+        // ✅ 1. 주소가 없으면 개인키 및 주소 생성
         if (!finalAddress) {
-          const res = await fetch('http://43.201.26.30:8080/wallets/address');
-          const data = await res.json();
-          finalAddress = data.address;
+          // 개인키 생성
+          const pkRes = await fetch('http://43.201.26.30:8080/wallets/private-key');
+          const pkData = await pkRes.json();
+          const privateKey = pkData.private_key;
 
-          // ✅ 저장
-          if (finalAddress) {
-            await Keychain.setGenericPassword('wallet_user', finalAddress, { service: WALLET_KEY });
+          // 주소 생성
+          const addrRes = await fetch('http://43.201.26.30:8080/wallets/address');
+          const addrData = await addrRes.json();
+          finalAddress = addrData.address;
+
+          // 저장
+          if (finalAddress && privateKey) {
+            await Keychain.setGenericPassword(privateKey, finalAddress, { service: WALLET_KEY });
           }
         }
 
         setAddress(finalAddress);
 
-        // ✅ 3. 잔액 조회
+        // ✅ 2. 잔액 조회
         if (finalAddress) {
           const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${finalAddress}`);
           const balData = await balRes.json();
@@ -55,11 +61,11 @@ export default function HomeScreen() {
           ]);
         }
       } catch (error) {
-        console.error('주소 또는 잔액 조회 실패:', error);
+        console.error('❌ 주소 또는 잔액 조회 실패:', error);
       }
     };
 
-    fetchAddressAndBalance();
+    fetchWalletAndBalance();
   }, []);
 
   const renderItem = ({ item }: { item: typeof tokens[0] }) => (

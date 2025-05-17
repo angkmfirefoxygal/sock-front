@@ -1,26 +1,89 @@
-//주소 진위 여부 체크 하지 않고 일단 네비게이션만 구현된 상태
-//주소 진위 여부 체크!!!
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TextInput, TouchableOpacity, Platform
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CommonButton from '../components/CommonButton';
+import { RootStackParamList } from '../navigation/RootStackParamList';
+import * as Keychain from 'react-native-keychain';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const tokens = [
-  { label: 'POL', value: 'POL', fee: '0.1 POL' },
-  { label: 'ETH', value: 'ETH', fee: '0.005 ETH' },
+  { label: 'ETH', value: 'ETH' },
+  { label: 'POL', value: 'POL' },
 ];
 
 export default function SelectAmountScreen() {
-  const navigation = useNavigation();
-  const [amount, setAmount] = useState('');
-  const [token, setToken] = useState('POL');
-  const [open, setOpen] = useState(false);
 
-  const selected = tokens.find(t => t.value === token);
+  type Navigation = NativeStackNavigationProp<RootStackParamList, 'SelectAmount'>;
+ const navigation = useNavigation<Navigation>();
+  const [amount, setAmount] = useState('');
+  const [token, setToken] = useState('ETH');
+  const [open, setOpen] = useState(false);
+  const [gasFee, setGasFee] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      try {
+        const res = await fetch('http://43.201.26.30:8080/wallets/gas');
+        const data = await res.json();
+        const proposeGas = parseFloat(data.ProposeGasPrice); // Gwei
+        const fee = (proposeGas * 21000) / 1e9; // ETH
+        setGasFee(fee.toFixed(6));
+      } catch (err) {
+        console.error('가스비 불러오기 실패:', err);
+        setGasFee(null);
+      }
+    };
+
+    const fetchBalance = async () => {
+      try {
+        const creds = await Keychain.getGenericPassword({ service: 'wallet' });
+        if (!creds) return;
+        const address = creds.password;
+        const res = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${address}`);
+        const data = await res.json();
+        setBalance(Number(data.balance));
+      } catch (err) {
+        console.error('잔액 불러오기 실패:', err);
+      }
+    };
+
+    fetchGas();
+    fetchBalance();
+  }, []);
+
+  const handleNext = () => {
+    setError('');
+
+    if (!amount) {
+      setError('이체 금액을 입력해주세요.');
+      return;
+    }
+
+    const inputEth = parseFloat(amount);
+    if (isNaN(inputEth)) {
+      setError('숫자만 입력해주세요.');
+      return;
+    }
+
+    if (balance !== null && inputEth > balance / 1e18) {
+      setError(`현재 잔액은 ${(balance / 1e18).toFixed(6)} ETH 입니다.`);
+      return;
+    }
+
+    // ✅ 조건 만족 → 다음 화면
+    navigation.navigate('ConfirmSend', { amount, token });
+  };
 
   return (
     <View style={styles.container}>
@@ -31,11 +94,9 @@ export default function SelectAmountScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 아래 컨텐츠 영역 */}
       <View style={styles.content}>
-        {/* 드롭다운 */}
         <View style={styles.dropdownWrapper}>
-        <DropDownPicker
+          <DropDownPicker
             open={open}
             value={token}
             items={tokens}
@@ -43,41 +104,40 @@ export default function SelectAmountScreen() {
             setValue={setToken}
             dropDownDirection="BOTTOM"
             style={{
-                width: 100,
-                height: 10,
-                backgroundColor: '#073686',
-                borderWidth:0,
-                borderRadius: 24,
-                paddingHorizontal: 16,
+              width: 100,
+              height: 10,
+              backgroundColor: '#073686',
+              borderWidth: 0,
+              borderRadius: 24,
+              paddingHorizontal: 16,
             }}
             textStyle={{
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: 14,
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: 14,
             }}
-            listItemLabelStyle={{ color: '#000' }} // ✅ 이 부분 추가!
+            listItemLabelStyle={{ color: '#000' }}
             ArrowDownIconComponent={() => (
-                <Text style={{ color: 'white', fontSize: 12 }}>▼</Text>
+              <Text style={{ color: 'white', fontSize: 12 }}>▼</Text>
             )}
             ArrowUpIconComponent={() => (
-                <Text style={{ color: 'white', fontSize: 12 }}>▲</Text>
+              <Text style={{ color: 'white', fontSize: 12 }}>▲</Text>
             )}
             dropDownContainerStyle={{
-                width: 100,       
-                borderWidth: 1,           
-                borderColor: '#ccc',     
-                borderRadius: 12,         // 선택적으로 모서리 둥글게
-                backgroundColor: '#fff',  // 선택적으로 배경색
+              width: 100,
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 12,
+              backgroundColor: '#fff',
             }}
             listItemContainerStyle={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#eee',
-                paddingVertical: 10,
-              }}
-            />
+              borderBottomWidth: 1,
+              borderBottomColor: '#eee',
+              paddingVertical: 10,
+            }}
+          />
         </View>
 
-        {/* 금액 입력 */}
         <Text style={styles.label}>이체 금액</Text>
         <View style={styles.inputRow}>
           <TextInput
@@ -90,16 +150,13 @@ export default function SelectAmountScreen() {
           <Text style={styles.unit}>{token}</Text>
         </View>
 
-        {/* 수수료 */}
-        <Text style={styles.fee}>수수료: {selected?.fee}</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {/* 버튼 */}
-        <CommonButton
-          label="다음"
-          onPress={() => {
-            // navigation.navigate('ConfirmSend', { amount, token });
-          }}
-        />
+        <Text style={styles.fee}>
+          수수료: {token === 'ETH' && gasFee ? `${gasFee} ETH` : token !== 'ETH' ? '0.1 POL' : '불러오는 중...'}
+        </Text>
+
+        <CommonButton label="다음" onPress={handleNext} />
       </View>
     </View>
   );
@@ -129,15 +186,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  dropdown: {
-    backgroundColor: '#f0f0f0',
-    borderWidth: 0,
-  },
   label: {
     fontSize: 14,
     alignSelf: 'flex-start',
     marginBottom: 10,
-    marginTop:25
+    marginTop: 25,
   },
   inputRow: {
     flexDirection: 'row',
@@ -158,6 +211,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 8,
     fontWeight: 'bold',
+  },
+  error: {
+    fontSize: 13,
+    color: 'red',
+    marginBottom: 8,
   },
   fee: {
     fontSize: 12,

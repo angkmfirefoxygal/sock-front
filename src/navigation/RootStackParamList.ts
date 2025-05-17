@@ -11,4 +11,8 @@ export type RootStackParamList = {
   SendToken: undefined;
   SelectAmount:undefined;
   QRScanner:undefined;
+  ConfirmSend: {
+    amount: string;
+    token: string;
+  };
 };

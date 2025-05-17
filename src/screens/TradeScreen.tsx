@@ -10,51 +10,44 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Keychain from 'react-native-keychain';
 
 type Transaction = {
   hash: string;
   from_address: string;
   to_address: string;
   value: string;
-  date?: string;
-  description?: string;
-  symbol?: string;
+  block_timestamp?: string;
 };
 
 export default function TradeScreen() {
   const [search, setSearch] = useState('');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [myAddress, setMyAddress] = useState<string>('');
 
   useEffect(() => {
-    // TODO: 추후 API 연동 시 이 부분 수정
     const fetchData = async () => {
       try {
-        // 임시 하드코딩 데이터
-        const dummyData: Transaction[] = [
-          {
-            hash: '0xabc1',
-            from_address: '0x1234567895435',
-            to_address: '0xmyWalletAddress',
-            value: '1000000000000000000',
-            date: '23/11/11 23:03',
-            description: '산학협력 전송',
-            symbol: 'POL',
-          },
-          {
-            hash: '0xabc2',
-            from_address: '0x12d34789543d5',
-            to_address: '0xmyWalletAddress',
-            value: '1000000000000000000',
-            date: '23/11/11 23:03',
-            description: '숙명여대 전송',
-            symbol: 'ETH',
-          },
-        ];
+        const creds = await Keychain.getGenericPassword({ service: 'wallet' });
+        if (!creds) throw new Error('저장된 지갑 주소 없음');
+        //테스트용 하드코딩 추후 아래 주석으로 수정
+        //const address = '0xCBEF9fEd729a420177A05385e7eeA95C69c1784B'.toLowerCase();
+        const address = creds.password.toLowerCase();
+        setMyAddress(address);
 
-        setTransactions(dummyData);
-      } catch (err) {
-        console.error('Error fetching transactions', err);
+        const res = await fetch(
+          `http://43.201.26.30:8080/wallets/history/go?address=${address}`
+        );
+        const data = await res.json();
+
+        if (!res.ok || !data.result) {
+          throw new Error(data.error || '거래 내역 불러오기 실패');
+        }
+
+        setTransactions(data.result);
+      } catch (err: any) {
+        console.error('❌ 거래 내역 오류:', err.message);
       } finally {
         setLoading(false);
       }
@@ -64,14 +57,22 @@ export default function TradeScreen() {
   }, []);
 
   const renderItem = ({ item }: { item: Transaction }) => {
+    const eth = (parseFloat(item.value) / 1e18).toFixed(6);
+    const date = item.block_timestamp?.split('T')[0] || '';
+    const isReceived = item.to_address.toLowerCase() === myAddress;
+    const direction = isReceived ? '수신' : '전송';
+    const sign = isReceived ? '+' : '-';
+    const color = isReceived ? '#067b1e' : '#D32F2F';
+
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{item.description}</Text>
-          <Text style={styles.cardDate}>{item.date}</Text>
+          <Text style={styles.cardTitle}>{direction}</Text>
+          <Text style={styles.cardDate}>{date}</Text>
         </View>
-        <Text style={styles.cardAmount}>+ {item.value === '1000000000000000000' ? '1' : '?'} {item.symbol}</Text>
-        <Text style={styles.cardSender}>송신자: {item.from_address}</Text>
+        <Text style={[styles.cardAmount, { color }]}>{sign} {eth} ETH</Text>
+        <Text style={styles.cardSender}>From: {item.from_address}</Text>
+        <Text style={styles.cardSender}>To: {item.to_address}</Text>
       </View>
     );
   };
@@ -99,7 +100,9 @@ export default function TradeScreen() {
         ) : (
           <FlatList
             data={transactions.filter(tx =>
-              tx.description?.includes(search) || tx.from_address.includes(search)
+              tx.hash.includes(search) ||
+              tx.from_address.includes(search) ||
+              tx.to_address.includes(search)
             )}
             renderItem={renderItem}
             keyExtractor={item => item.hash}
@@ -156,6 +159,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
+    fontSize: 15,
   },
   cardDate: {
     color: '#666',

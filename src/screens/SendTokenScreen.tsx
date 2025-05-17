@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -13,8 +12,9 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import CommonButton from '../components/CommonButton';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import CommonButton from '../components/CommonButton';
 import { RootStackParamList } from '../navigation/RootStackParamList';
 
 type RecentAddress = {
@@ -25,8 +25,10 @@ type RecentAddress = {
 export default function SendTokenScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
+
   const [address, setAddress] = useState('');
   const [recentAddresses, setRecentAddresses] = useState<RecentAddress[]>([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchRecentAddresses = async () => {
@@ -45,11 +47,30 @@ export default function SendTokenScreen() {
   const handlePaste = async () => {
     const content = await Clipboard.getString();
     setAddress(content);
+    setError('');
   };
 
   const handleRecentPress = (addr: string) => {
     Clipboard.setString(addr);
     setAddress(addr);
+    setError('');
+  };
+
+  const validateAndProceed = () => {
+    setError('');
+
+    if (!address.trim()) {
+      setError('주소를 입력해주세요.');
+      return;
+    }
+
+    const isValidEthereumAddress = /^0x[a-fA-F0-9]{40}$/.test(address);
+    if (!isValidEthereumAddress) {
+      setError('올바른 이더리움 주소 형식이 아닙니다.');
+      return;
+    }
+
+    navigation.navigate('SelectAmount');
   };
 
   const renderItem = ({ item }: { item: RecentAddress }) => (
@@ -57,13 +78,15 @@ export default function SendTokenScreen() {
       <Image source={require('../assets/avatar/avatar1.png')} style={styles.avatar} />
       <View>
         <Text style={styles.accountLabel}>{item.address.slice(0, 6)}...{item.address.slice(-4)}</Text>
-        <Text style={styles.accountAddress}>최근 사용: {new Date(item.last_used).toLocaleString()}</Text>
+        <Text style={styles.accountAddress}>
+          최근 사용: {new Date(item.last_used).toLocaleString()}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea]}>
+    <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
@@ -85,28 +108,29 @@ export default function SendTokenScreen() {
             style={styles.input}
             placeholder="0x1234...abcd"
             value={address}
-            onChangeText={setAddress}
+            onChangeText={(text) => {
+              setAddress(text);
+              setError('');
+            }}
             autoCapitalize="none"
             autoCorrect={false}
           />
           <TouchableOpacity onPress={handlePaste}>
-            <Image
-              source={require('../assets/icon/copy_icon.png')}
-              style={styles.pasteIcon}
-            />
+            <Image source={require('../assets/icon/copy_icon.png')} style={styles.pasteIcon} />
           </TouchableOpacity>
         </View>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         {/* 최근 보낸 주소 */}
         <Text style={styles.recentTitle}>최근 보낸 주소</Text>
         <FlatList
           data={recentAddresses}
           renderItem={renderItem}
-          keyExtractor={item => item.address}
+          keyExtractor={(item) => item.address}
         />
 
         {/* 버튼 */}
-        <CommonButton label="다음" onPress={() => navigation.navigate('SelectAmount')} />
+        <CommonButton label="다음" onPress={validateAndProceed} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -146,7 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 8,
   },
   input: {
     flex: 1,
@@ -158,9 +182,16 @@ const styles = StyleSheet.create({
     height: 15,
     tintColor: '#666',
   },
+  errorText: {
+    fontSize: 12,
+    color: 'red',
+    marginBottom: 8,
+    marginTop: 4,
+  },
   recentTitle: {
     fontSize: 13,
     color: '#666',
+    marginTop: 20,
     marginBottom: 12,
   },
   recentItem: {
