@@ -32,7 +32,7 @@ export default function TradeScreen() {
         const creds = await Keychain.getGenericPassword({ service: 'wallet' });
         if (!creds) throw new Error('저장된 지갑 주소 없음');
         //테스트용 하드코딩 추후 아래 주석으로 수정
-        //const address = '0xCBEF9fEd729a420177A05385e7eeA95C69c1784B'.toLowerCase();
+       //const address = '0xCBEF9fEd729a420177A05385e7eeA95C69c1784B'.toLowerCase();
         const address = creds.password.toLowerCase();
         setMyAddress(address);
 
@@ -63,6 +63,9 @@ export default function TradeScreen() {
     const direction = isReceived ? '수신' : '전송';
     const sign = isReceived ? '+' : '-';
     const color = isReceived ? '#067b1e' : '#D32F2F';
+    const maskAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
 
     return (
       <View style={styles.card}>
@@ -70,9 +73,9 @@ export default function TradeScreen() {
           <Text style={styles.cardTitle}>{direction}</Text>
           <Text style={styles.cardDate}>{date}</Text>
         </View>
-        <Text style={[styles.cardAmount, { color }]}>{sign} {eth} ETH</Text>
-        <Text style={styles.cardSender}>From: {item.from_address}</Text>
-        <Text style={styles.cardSender}>To: {item.to_address}</Text>
+        <Text style={[styles.cardAmount, { color }]}>{sign} {eth} POL </Text>
+        <Text style={styles.cardSender}>From: {maskAddress(item.from_address)}</Text>
+        <Text style={styles.cardSender}>To: {maskAddress(item.to_address)}</Text>
       </View>
     );
   };

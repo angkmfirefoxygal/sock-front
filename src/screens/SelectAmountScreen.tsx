@@ -16,8 +16,8 @@ import * as Keychain from 'react-native-keychain';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const tokens = [
-  { label: 'ETH', value: 'ETH' },
   { label: 'POL', value: 'POL' },
+  { label: 'ETH', value: 'ETH' },
 ];
 
 export default function SelectAmountScreen() {
@@ -25,7 +25,7 @@ export default function SelectAmountScreen() {
   type Navigation = NativeStackNavigationProp<RootStackParamList, 'SelectAmount'>;
  const navigation = useNavigation<Navigation>();
   const [amount, setAmount] = useState('');
-  const [token, setToken] = useState('ETH');
+  const [token, setToken] = useState('POL');
   const [open, setOpen] = useState(false);
   const [gasFee, setGasFee] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -36,8 +36,8 @@ export default function SelectAmountScreen() {
       try {
         const res = await fetch('http://43.201.26.30:8080/wallets/gas');
         const data = await res.json();
-        const proposeGas = parseFloat(data.ProposeGasPrice); // Gwei
-        const fee = (proposeGas * 21000) / 1e9; // ETH
+        const gasGwei = parseFloat(data.gas_price_gwei);
+        const fee = (gasGwei * 21000) / 1e9;
         setGasFee(fee.toFixed(6));
       } catch (err) {
         console.error('가스비 불러오기 실패:', err);
@@ -77,7 +77,7 @@ export default function SelectAmountScreen() {
     }
 
     if (balance !== null && inputEth > balance / 1e18) {
-      setError(`현재 잔액은 ${(balance / 1e18).toFixed(6)} ETH 입니다.`);
+      setError(`현재 잔액은 ${(balance / 1e18).toFixed(6)} POL 입니다.`);
       return;
     }
 
@@ -152,8 +152,8 @@ export default function SelectAmountScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Text style={styles.fee}>
-          수수료: {token === 'ETH' && gasFee ? `${gasFee} ETH` : token !== 'ETH' ? '0.1 POL' : '불러오는 중...'}
+         <Text style={styles.fee}>
+          수수료: {gasFee ? `${gasFee} ${token}` : '불러오는 중...'}
         </Text>
 
         <CommonButton label="다음" onPress={handleNext} />

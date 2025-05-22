@@ -104,7 +104,7 @@ export default function VerifyMnemonicScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24, // ✅ GenerateMnemonicScreen과 동일
+    padding: 24,
     backgroundColor: '#fff',
   },
   scrollContent: {
