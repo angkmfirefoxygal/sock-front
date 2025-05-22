@@ -1,4 +1,3 @@
-// 생성 검증 화면
 import React, { useState } from 'react';
 import {
   View,
@@ -16,6 +15,7 @@ import CommonButton from '../components/CommonButton';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
+import * as Keychain from 'react-native-keychain';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'VerifyMnemonic'>;
 type Route = RouteProp<RootStackParamList, 'VerifyMnemonic'>;
@@ -41,19 +41,38 @@ export default function VerifyMnemonicScreen() {
     }
 
     try {
-      const res = await fetch(
+      // 1. 유효성 검사
+      const verifyRes = await fetch(
         `http://43.201.26.30:8080/wallets/verify?mnemonic=${encodeURIComponent(inputMnemonic)}`
       );
-      const data = await res.json();
+      const verifyData = await verifyRes.json();
 
-      if (data.valid) {
-        navigation.navigate('Main');
-      } else {
+      if (!verifyData.valid) {
         Alert.alert('유효하지 않은 구문', '입력한 니모닉이 유효하지 않습니다.');
+        return;
       }
-    } catch (error) {
-      console.error('❌ 검증 실패:', error);
-      Alert.alert('네트워크 오류', '서버와 연결할 수 없습니다.');
+
+      // 2. 주소 + 프라이빗 키 복구
+      const recoverRes = await fetch(
+        `http://43.201.26.30:8080/wallets/recover?mnemonic=${encodeURIComponent(inputMnemonic)}`
+      );
+      const recoverData = await recoverRes.json();
+      const wallet = JSON.parse(recoverData.wallet);
+      const { address, private_key } = wallet;
+
+      if (!address || !private_key) {
+        throw new Error('복구된 주소 또는 개인키가 없습니다.');
+      }
+
+      // 3. Keychain 저장
+      await Keychain.resetGenericPassword({ service: 'wallet' });
+      await Keychain.setGenericPassword(private_key, address, { service: 'wallet' });
+
+      // 4. 이동
+      navigation.replace('Main');
+    } catch (error: any) {
+      console.error('❌ 검증 또는 복구 실패:', error);
+      Alert.alert('오류', error.message || '복구 중 문제가 발생했습니다.');
     }
   };
 
@@ -128,7 +147,6 @@ const styles = StyleSheet.create({
   input: {
     minWidth: 100,
     borderWidth: 1,
-    //borderColor: '#aaa',
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 8,

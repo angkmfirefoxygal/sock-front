@@ -9,7 +9,6 @@ import SelectAmountScreen from '../screens/SelectAmountScreen';
 import QRScannerScreen from '../screens/QRScannerScreen';
 import VerifyMnemonicScreen from '../screens/VerifyMnemonicScreen';
 import GenerateMnemonicScreen from '../screens/GenerateMnemonicScreen';
-import RecoverMnemonicScreen from '../screens/RecoverMnemonicScreen';
 import ConfirmSendScreen from '../screens/ConfirmSendScreen';
 const Stack = createNativeStackNavigator();
 
@@ -24,7 +23,6 @@ export default function AppNavigator() {
       <Stack.Screen name="QRScanner" component={QRScannerScreen} />
       <Stack.Screen name="GenerateMnemonic" component={GenerateMnemonicScreen} />
       <Stack.Screen name="VerifyMnemonic" component={VerifyMnemonicScreen} />
-      <Stack.Screen name="RecoverMnemonic" component={RecoverMnemonicScreen} />
       <Stack.Screen name="ConfirmSend" component={ConfirmSendScreen} />
     </Stack.Navigator>
   );

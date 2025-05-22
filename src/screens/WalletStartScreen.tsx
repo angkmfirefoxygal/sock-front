@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import WalletCreationModal from '../components/modals/WalletCreationMethodMadal';
 import CommonButton from '../components/CommonButton';
 import { useNavigation } from '@react-navigation/native';
@@ -9,11 +9,19 @@ import { RootStackParamList } from '../navigation/RootStackParamList';
 export default function WalletStartScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SOCK</Text>
 
-      <View style={styles.circle} />
+      {/* 원 안에 로고 이미지 */}
+      <View style={styles.circle}>
+        <Image
+          source={require('../assets/logo/SOCK_logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
 
       <View style={styles.buttonGroup}>
         <CommonButton
@@ -23,7 +31,7 @@ export default function WalletStartScreen() {
 
         <CommonButton
           label="지갑 복구"
-          onPress={() => navigation.navigate('RecoverMnemonic')}
+          onPress={() => navigation.navigate('VerifyMnemonic', { mnemonic: [] })}
           variant="secondary"
         />
       </View>
@@ -37,7 +45,7 @@ export default function WalletStartScreen() {
         }}
         onSelectMobile={() => {
           setModalVisible(false);
-          navigation.navigate('GenerateMnemonic'); // ✅ 여기서 이동!
+          navigation.navigate('GenerateMnemonic');
         }}
       />
     </View>
@@ -64,10 +72,16 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     backgroundColor: '#073686',
     marginBottom: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 120,
+    height: 120,
   },
   buttonGroup: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 1
+    marginBottom: 1,
   },
 });

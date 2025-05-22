@@ -1,6 +1,5 @@
 // src/navigation/RootStackParamList.ts
 export type RootStackParamList = {
-  RecoverMnemonic: undefined;
   SetPassword: undefined;
   EnterPassword: undefined;
   WalletStart: undefined;

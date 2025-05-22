@@ -39,14 +39,14 @@ export default function SetPasswordScreen() {
       }
 
       console.log('✅ 비밀번호 저장 성공:', json.status);
-      navigation.replace('EnterPassword'); // ✅ 성공 시 이동
+      navigation.replace('EnterPassword'); //  성공 시 이동
     } catch (err: any) {
       console.error('❌ 서버 저장 실패:', err.message);
       setError(err.message);
     }
   };
 
-  // ✅ 확인 버튼 눌렀을 때
+  //  확인 버튼 눌렀을 때
   const handleConfirm = () => {
     setError('');
 

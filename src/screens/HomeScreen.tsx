@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, FlatList, Modal, Pressable } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CommonButton from '../components/CommonButton';
 import { useNavigation } from '@react-navigation/native';
@@ -33,42 +33,27 @@ export default function HomeScreen() {
     const fetchWalletAndBalance = async () => {
       try {
         const creds = await Keychain.getGenericPassword({ service: WALLET_KEY });
-        let finalAddress: string | null = null;
 
-        if (creds) {
-          finalAddress = creds.password;
+        if (!creds) {
+          console.warn('Keychain에 저장된 지갑 정보가 없습니다.');
+          return;
         }
 
-        if (!finalAddress) {
-          const pkRes = await fetch('http://43.201.26.30:8080/wallets/private-key');
-          const pkData = await pkRes.json();
-          const privateKey = pkData.private_key;
+        const storedAddress = creds.password;
+        setAddress(storedAddress);
 
-          const addrRes = await fetch('http://43.201.26.30:8080/wallets/address');
-          const addrData = await addrRes.json();
-          finalAddress = addrData.address;
+        const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${storedAddress}`);
+        const balData = await balRes.json();
+        const balanceStr = `${Number(balData.balance).toFixed(6)} POL`;
 
-          if (finalAddress && privateKey) {
-            await Keychain.setGenericPassword(privateKey, finalAddress, { service: WALLET_KEY });
-          }
-        }
-
-        setAddress(finalAddress);
-
-        if (finalAddress) {
-          const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${finalAddress}`);
-          const balData = await balRes.json();
-          const balanceStr = `${Number(balData.balance).toFixed(6)} POL`;
-
-          setTokens([
-            {
-              id: '1',
-              name: 'POL',
-              amount: balanceStr,
-              icon: require('../assets/logo/polygon_logo.png'),
-            },
-          ]);
-        }
+        setTokens([
+          {
+            id: '1',
+            name: 'POL',
+            amount: balanceStr,
+            icon: require('../assets/logo/polygon_logo.png'),
+          },
+        ]);
       } catch (error) {
         console.error('❌ 주소 또는 잔액 조회 실패:', error);
       }
@@ -91,12 +76,10 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
-          {/* 네트워크 아이콘 왼쪽 상단 */}
           <Pressable onPress={handleFetchNetworkInfo} style={styles.iconWrapper}>
             <Image source={require('../assets/icon/network_icon.png')} style={styles.icon} />
           </Pressable>
 
-          {/* 계정 정보 가운데 정렬 */}
           <View style={styles.accountTextContainer}>
             <Text style={styles.accountName}>Account 1</Text>
             <Text style={styles.accountAddress}>
@@ -121,22 +104,19 @@ export default function HomeScreen() {
         </View>
 
         <NetworkInfoModal
-        visible={networkInfoModalVisible}
-        onClose={() => setNetworkInfoModalVisible(false)}
-        networkInfo={networkInfo}
-       />
-
+          visible={networkInfoModalVisible}
+          onClose={() => setNetworkInfoModalVisible(false)}
+          networkInfo={networkInfo}
+        />
       </View>
     </SafeAreaView>
-
-    
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, padding: 24 },
-    header: {
+  header: {
     position: 'relative',
     marginBottom: 24,
     justifyContent: 'center',
@@ -147,12 +127,10 @@ const styles = StyleSheet.create({
     top: 0,
     padding: 4,
   },
-
   icon: {
     width: 24,
     height: 24,
   },
-
   accountTextContainer: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -161,12 +139,14 @@ const styles = StyleSheet.create({
   accountAddress: { color: '#888', fontSize: 12, marginTop: 2 },
   sectionTitle: { marginVertical: 12, fontWeight: 'bold', fontSize: 15 },
   tokenItem: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   tokenLeft: { flexDirection: 'row', alignItems: 'center' },
   tokenIcon: { width: 24, height: 24, marginRight: 8 },
   tokenSymbol: { fontSize: 14, fontWeight: 'bold' },
   tokenAmount: { fontSize: 14, fontWeight: '500' },
   buttonGroup: { width: '100%', alignItems: 'center' },
-
 });
