@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import SetPasswordScreen from './src/screens/SetPasswordScreen';
-import EnterPasswordScreen from './src/screens/EnterPasswordScreen';
-import WalletStartScreen from './src/screens/WalletStartScreen';
-import GenerateMnemonicScreen from './src/screens/GenerateMnemonicScreen';
-import VerifyMnemonicScreen from './src/screens/VerifyMnemonicScreen';
-import BottomTabNavigator from './src/navigation/BottomTabs';
-//import AddressInputScreen from './src/screens/AdressInputScreen';
-import ReceiveTokenScreen from './src/screens/ReceiveTokenScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppNavigator from './src/navigation/AppNavigator';
-import SelectAmountScreen from './src/screens/SelectAmountScreen';
+import * as Keychain from 'react-native-keychain';
+
+
 export default function App() {
+  // 앱 배포할땐 삭제해야함 useEffect!!!!!!!!
+  useEffect(() => {
+    const clearAsyncStorage = async () => {
+     // await AsyncStorage.clear();
+      //await Keychain.resetGenericPassword({ service: 'wallet' });
+    };
+    clearAsyncStorage();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>

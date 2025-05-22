@@ -16,6 +16,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
 import * as Keychain from 'react-native-keychain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'VerifyMnemonic'>;
 type Route = RouteProp<RootStackParamList, 'VerifyMnemonic'>;
@@ -68,6 +69,10 @@ export default function VerifyMnemonicScreen() {
       await Keychain.resetGenericPassword({ service: 'wallet' });
       await Keychain.setGenericPassword(private_key, address, { service: 'wallet' });
 
+
+      // 복구 완료 플래그 저장
+      
+      await AsyncStorage.setItem('isWalletRestored', 'true');
       // 4. 이동
       navigation.replace('Main');
     } catch (error: any) {

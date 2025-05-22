@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Alert,
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
 } from 'react-native';
 import Header from '../components/Header';
 import CommonButton from '../components/CommonButton';
@@ -67,8 +71,14 @@ const styles = StyleSheet.create({
   content: { padding: 24, marginTop: 60 },
   label: { fontSize: 14, marginBottom: 4, color: '#000' },
   input: {
-    height: 44, fontSize: 14, borderWidth: 1, borderColor: '#eee',
-    borderRadius: 8, paddingHorizontal: 10, backgroundColor: '#fafafa', marginBottom: 16,
+    height: 44,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#fafafa',
+    marginBottom: 16,
   },
   error: { color: 'red', marginTop: 8, marginBottom: 16, fontSize: 13 },
 });
