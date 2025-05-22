@@ -1,3 +1,8 @@
+//수수료 연결 안되어있음
+// 송금 체크 안되어있음
+// 주소 반영 안되어있음
+// 그냥 깡통화면
+
 import React, { useState } from 'react';
 import {
   View,
