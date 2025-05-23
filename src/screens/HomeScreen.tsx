@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
 import NetworkInfoModal from '../components/modals/NetworkInfoModal';
 import * as Keychain from 'react-native-keychain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WALLET_KEY = 'wallet';
 
@@ -44,7 +45,8 @@ export default function HomeScreen() {
 
         const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${storedAddress}`);
         const balData = await balRes.json();
-        const balanceStr = `${Number(balData.balance).toFixed(6)} POL`;
+        const numericBalance = Number(balData.balance);
+        const balanceStr = `${numericBalance.toFixed(6)} POL`;
 
         setTokens([
           {
@@ -54,6 +56,9 @@ export default function HomeScreen() {
             icon: require('../assets/logo/polygon_logo.png'),
           },
         ]);
+
+        // ✅ 잔액을 AsyncStorage에 저장
+        await AsyncStorage.setItem('walletBalance', String(numericBalance));
       } catch (error) {
         console.error('❌ 주소 또는 잔액 조회 실패:', error);
       }

@@ -7,7 +7,8 @@ import CommonButton from '../components/CommonButton';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ 추가
+import { Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function EnterPasswordScreen() {
   const [password, setPassword] = useState('');
@@ -26,7 +27,7 @@ export default function EnterPasswordScreen() {
       if (!res.ok) throw new Error(json.error || '비밀번호 인증 실패');
 
       if (json.status === 'password match') {
-        // ✅ AsyncStorage에서 지갑 복구 여부 확인
+        // AsyncStorage에서 지갑 복구 여부 확인
         const isWalletRestored = await AsyncStorage.getItem('isWalletRestored');
 
         if (isWalletRestored === 'true') {
@@ -45,7 +46,7 @@ export default function EnterPasswordScreen() {
       } else if (err.message === 'No password found') {
         setError('저장된 비밀번호가 없습니다.');
       } else {
-        setError('오류가 발생했습니다. 다시 시도해주세요.');
+        setError('오류가 발생했습니다. 다시 입력해주세요.');
       }
     }
   };
@@ -53,7 +54,13 @@ export default function EnterPasswordScreen() {
   return (
     <View style={styles.container}>
       <Header title="비밀번호 입력" />
-      <View style={styles.circle} />
+      <View style={styles.circle}>
+      <Image
+        source={require('../assets/logo/SOCK_logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+    </View>
       <Text style={styles.label}>비밀번호 입력</Text>
       <TextInput
         style={styles.input}
@@ -71,8 +78,14 @@ export default function EnterPasswordScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: '#fff', alignItems: 'center' },
   circle: {
-    width: 160, height: 160, backgroundColor: '#002366', borderRadius: 80,
-    marginTop: 60, marginBottom: 48,
+    width: 160,
+    height: 160,
+    backgroundColor: '#002366',
+    borderRadius: 80,
+    marginTop: 60,
+    marginBottom: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: { fontSize: 14, alignSelf: 'flex-start', marginBottom: 4, color: '#000' },
   input: {
@@ -81,4 +94,8 @@ const styles = StyleSheet.create({
     borderColor: '#eee', marginBottom: 16,
   },
   error: { color: 'red', fontSize: 13, alignSelf: 'flex-start', marginBottom: 8 },
+  logo: {
+  width: 120,
+  height: 120,
+},
 });

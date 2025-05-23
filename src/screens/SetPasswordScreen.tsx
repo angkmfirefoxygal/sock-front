@@ -52,25 +52,37 @@ export default function SetPasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Header title="비밀번호 설정" />
-      <View style={styles.content}>
-        <Text style={styles.label}>비밀번호 입력</Text>
-        <TextInput style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
-        <Text style={styles.label}>비밀번호 확인</Text>
-        <TextInput style={styles.input} secureTextEntry value={confirm} onChangeText={setConfirm} />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <CommonButton label="확인" onPress={handleConfirm} />
-      </View>
-    </View>
+<View style={styles.container}>
+  <Header title="비밀번호 설정" />
+  
+  <Text style={[styles.label, { marginTop: 32 }]}>비밀번호 입력</Text>
+  <TextInput style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
+
+  <Text style={styles.label}>비밀번호 확인</Text>
+  <TextInput style={styles.input} secureTextEntry value={confirm} onChangeText={setConfirm} />
+
+  {error ? <Text style={styles.error}>{error}</Text> : null}
+
+  <CommonButton label="확인" onPress={handleConfirm} />
+</View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 24, marginTop: 60 },
-  label: { fontSize: 14, marginBottom: 4, color: '#000' },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 24,
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: 14,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+    color: '#000',
+  },
   input: {
+    marginTop: 5,
+    width: '100%',
     height: 44,
     fontSize: 14,
     borderWidth: 1,
@@ -78,7 +90,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     backgroundColor: '#fafafa',
+    marginBottom: 20,
+  },
+  error: {
+    color: 'red',
+    fontSize: 13,
+    alignSelf: 'flex-start',
     marginBottom: 16,
   },
-  error: { color: 'red', marginTop: 8, marginBottom: 16, fontSize: 13 },
 });

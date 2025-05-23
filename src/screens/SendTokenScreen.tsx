@@ -70,7 +70,7 @@ export default function SendTokenScreen() {
       return;
     }
 
-    navigation.navigate('SelectAmount');
+    navigation.navigate('SelectAmount', {toAddress: address});
   };
 
   const renderItem = ({ item }: { item: RecentAddress }) => (

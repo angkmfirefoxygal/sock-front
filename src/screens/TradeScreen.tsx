@@ -31,8 +31,6 @@ export default function TradeScreen() {
       try {
         const creds = await Keychain.getGenericPassword({ service: 'wallet' });
         if (!creds) throw new Error('저장된 지갑 주소 없음');
-        //테스트용 하드코딩 추후 아래 주석으로 수정
-       //const address = '0xCBEF9fEd729a420177A05385e7eeA95C69c1784B'.toLowerCase();
         const address = creds.password.toLowerCase();
         setMyAddress(address);
 
@@ -57,7 +55,7 @@ export default function TradeScreen() {
   }, []);
 
   const renderItem = ({ item }: { item: Transaction }) => {
-    const eth = (parseFloat(item.value) / 1e18).toFixed(6);
+    const eth = (parseFloat(item.value) / 1e18).toString();
     const date = item.block_timestamp?.split('T')[0] || '';
     const isReceived = item.to_address.toLowerCase() === myAddress;
     const direction = isReceived ? '수신' : '전송';

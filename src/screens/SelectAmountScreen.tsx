@@ -6,14 +6,15 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CommonButton from '../components/CommonButton';
 import { RootStackParamList } from '../navigation/RootStackParamList';
-import * as Keychain from 'react-native-keychain';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
 
 const tokens = [
   { label: 'POL', value: 'POL' },
@@ -21,46 +22,50 @@ const tokens = [
 ];
 
 export default function SelectAmountScreen() {
-
   type Navigation = NativeStackNavigationProp<RootStackParamList, 'SelectAmount'>;
- const navigation = useNavigation<Navigation>();
+  const navigation = useNavigation<Navigation>();
+
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState('POL');
   const [open, setOpen] = useState(false);
   const [gasFee, setGasFee] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [balance, setBalance] = useState<number | null>(null);
+  const route = useRoute<RouteProp<RootStackParamList, 'SelectAmount'>>();
+  const { toAddress } = route.params;
 
   useEffect(() => {
-    const fetchGas = async () => {
-      try {
-        const res = await fetch('http://43.201.26.30:8080/wallets/gas');
-        const data = await res.json();
-        const gasGwei = parseFloat(data.gas_price_gwei);
-        const fee = (gasGwei * 21000) / 1e9;
-        setGasFee(fee.toFixed(6));
-      } catch (err) {
-        console.error('가스비 불러오기 실패:', err);
-        setGasFee(null);
-      }
-    };
-
-    const fetchBalance = async () => {
-      try {
-        const creds = await Keychain.getGenericPassword({ service: 'wallet' });
-        if (!creds) return;
-        const address = creds.password;
-        const res = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${address}`);
-        const data = await res.json();
-        setBalance(Number(data.balance));
-      } catch (err) {
-        console.error('잔액 불러오기 실패:', err);
-      }
-    };
-
     fetchGas();
-    fetchBalance();
+    fetchStoredBalance();
   }, []);
+
+  const fetchGas = async () => {
+    try {
+      const res = await fetch('http://43.201.26.30:8080/wallets/gas');
+      const data = await res.json();
+      const gasGwei = parseFloat(data.gas_price_gwei);
+      const fee = (gasGwei * 21000) / 1e9;
+      setGasFee(fee.toFixed(6));
+    } catch (err) {
+      console.error('가스비 불러오기 실패:', err);
+      setGasFee(null);
+    }
+  };
+
+  const fetchStoredBalance = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('walletBalance');
+      if (stored !== null) {
+        const numericBalance = Number(stored);
+        console.log('✅ 저장된 잔액 불러옴:', numericBalance);
+        setBalance(numericBalance);
+      } else {
+        console.warn('❗️ AsyncStorage에 저장된 잔액 없음');
+      }
+    } catch (err) {
+      console.error('❌ AsyncStorage에서 잔액 불러오기 실패:', err);
+    }
+  };
 
   const handleNext = () => {
     setError('');
@@ -76,18 +81,22 @@ export default function SelectAmountScreen() {
       return;
     }
 
-    if (balance !== null && inputEth > balance / 1e18) {
-      setError(`현재 잔액은 ${(balance / 1e18).toFixed(6)} POL 입니다.`);
+    if (balance !== null && inputEth > balance) {
+      setError(`현재 잔액은 ${(balance).toFixed(6)} ${token} 입니다.`);
       return;
     }
 
-    // ✅ 조건 만족 → 다음 화면
-    navigation.navigate('ConfirmSend', { amount, token });
+    navigation.navigate('ConfirmSend', {
+      amount,
+      token,
+      toAddress,
+      gasFee: gasFee ?? '0',
+      balance: balance?.toString() ?? '0',
+    });
   };
 
   return (
     <View style={styles.container}>
-      {/* 상단 취소 버튼 */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.cancel}>취소</Text>
@@ -152,7 +161,7 @@ export default function SelectAmountScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-         <Text style={styles.fee}>
+        <Text style={styles.fee}>
           수수료: {gasFee ? `${gasFee} ${token}` : '불러오는 중...'}
         </Text>
 

@@ -8,10 +8,15 @@ export type RootStackParamList = {
   Main: undefined;
   ReceiveToken: undefined;
   SendToken: undefined;
-  SelectAmount:undefined;
+  SelectAmount: {
+    toAddress:string; // SendToken에서 To 주소 받기 
+  };
   QRScanner:undefined;
   ConfirmSend: {
     amount: string;
     token: string;
+    toAddress: string;
+    gasFee : string;
+    balance : string;
   };
 };

@@ -1,8 +1,3 @@
-//수수료 연결 안되어있음
-// 송금 체크 안되어있음
-// 주소 반영 안되어있음
-// 그냥 깡통화면
-
 import React, { useState } from 'react';
 import {
   View,
@@ -13,20 +8,35 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootStackParamList';
 import * as Keychain from 'react-native-keychain';
 import CommonButton from '../components/CommonButton';
 
 type Route = RouteProp<RootStackParamList, 'ConfirmSend'>;
+type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
 export default function ConfirmSendScreen() {
   const route = useRoute<Route>();
-  const navigation = useNavigation();
-  const { amount, token } = route.params;
+  const navigation = useNavigation<Navigation>();
+  const { amount, token, toAddress, gasFee, balance } = route.params;
 
   const [loading, setLoading] = useState(false);
+  const shortenAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
   const handleSend = async () => {
+    const userBalance = parseFloat(balance);
+    const total = parseFloat(amount) + parseFloat(gasFee);
+
+    if (userBalance < total) {
+      Alert.alert(
+        '송금 불가',
+        `현재 잔액이 부족합니다.\n현재 잔액: ${userBalance.toFixed(6)}\n필요 금액: ${total.toFixed(6)}`
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const creds = await Keychain.getGenericPassword({ service: 'wallet' });
@@ -35,23 +45,40 @@ export default function ConfirmSendScreen() {
         return;
       }
 
-      const privateKey = creds.username;
-      const toAddress = creds.password;
+      const rawPrivateKey = creds.username;
+      const normalizedPrivateKey = rawPrivateKey.replace(/^0x/, '');
 
-      const res = await fetch(
-        `http://43.201.26.30:8080/wallets/check?to=${toAddress}&amount=${amount}&private_key=${privateKey}`
+      // ✅ 서버에서 송금 가능 여부 최종 확인
+      const checkRes = await fetch(
+        `http://43.201.26.30:8080/wallets/check?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`
       );
-      const data = await res.json();
+      const checkData = await checkRes.json();
 
-      if (res.ok && data.can_send) {
-        Alert.alert('성공', '송금 가능합니다! (TODO: 실제 전송 처리)');
-        // TODO: /wallets/send API로 실제 송금 구현
+      if (!checkRes.ok || !checkData.can_send) {
+        Alert.alert('송금 불가', '서버 확인 결과: 잔액 부족 또는 가스비 부족');
+        return;
+      }
+
+      // ✅ 실제 송금 요청
+      const sendUrl = `http://43.201.26.30:8080/wallets/send?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`;
+      console.log('📡 송금 요청:', sendUrl);
+
+      const sendRes = await fetch(sendUrl);
+      const sendData = await sendRes.json();
+
+      if (sendRes.ok && sendData.tx_hash) {
+        console.log('✅ 트랜잭션 해시:', sendData.tx_hash);
+        Alert.alert(
+          '송금 완료',
+          '토큰 전송이 성공적으로 완료되었습니다.',
+          [{ text: '확인', onPress: () => navigation.navigate('Main') }]
+        );
       } else {
-        Alert.alert('송금 불가', '잔액 부족 또는 오류로 송금이 불가능합니다.');
+        Alert.alert('❌ 송금 실패', sendData.error ?? '송금 처리 중 문제가 발생했습니다.');
       }
     } catch (err) {
-      console.error('❌ 송금 확인 오류:', err);
-      Alert.alert('오류', '송금 가능 여부 확인 중 문제가 발생했습니다.');
+      console.error('❌ 송금 오류:', err);
+      Alert.alert('오류', '송금 중 문제가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -60,18 +87,19 @@ export default function ConfirmSendScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.description}>
-        <Text style={styles.address}>0×1234567895435</Text>로{'\n'}
+        <Text style={styles.address}>{shortenAddress(toAddress)}</Text>로{'\n'}
         <Text style={styles.amount}>{amount} {token}</Text>을 보내시겠습니까?
       </Text>
 
-      <Text style={styles.feeText}>수수료: {token === 'POL' ? '0.1 POL' : '네트워크 기준 가스비'}</Text>
+      <Text style={styles.feeText}>
+        수수료: {gasFee ? `${gasFee} ${token}` : '계산 중...'}
+      </Text>
 
       {loading ? (
         <ActivityIndicator size="large" style={{ marginTop: 40 }} />
       ) : (
         <>
           <CommonButton label="보내기" onPress={handleSend} />
-
           <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 16 }}>
             <Text style={styles.cancel}>취소</Text>
           </TouchableOpacity>
