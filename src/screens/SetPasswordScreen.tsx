@@ -24,7 +24,7 @@ export default function SetPasswordScreen() {
 
   const savePassword = async () => {
     try {
-      const res = await fetch('http://43.201.26.30:8080/wallets/set-password', {
+      const res = await fetch('https://moply.me/sock/wallets/set-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),

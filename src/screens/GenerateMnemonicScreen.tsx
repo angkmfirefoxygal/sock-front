@@ -21,7 +21,7 @@ export default function GenerateMnemonicScreen() {
 useEffect(() => {
   const fetchMnemonic = async () => {
     try {
-      const res = await fetch('http://43.201.26.30:8080/wallets/create');
+      const res = await fetch('https://moply.me/sock/wallets/create');
       const data = await res.json();
 
       //  문자열 → 배열 변환 추가!

@@ -44,7 +44,7 @@ export default function VerifyMnemonicScreen() {
     try {
       // 1. 유효성 검사
       const verifyRes = await fetch(
-        `http://43.201.26.30:8080/wallets/verify?mnemonic=${encodeURIComponent(inputMnemonic)}`
+        `https://moply.me/sock/wallets/verify?mnemonic=${encodeURIComponent(inputMnemonic)}`
       );
       const verifyData = await verifyRes.json();
 
@@ -55,7 +55,7 @@ export default function VerifyMnemonicScreen() {
 
       // 2. 주소 + 프라이빗 키 복구
       const recoverRes = await fetch(
-        `http://43.201.26.30:8080/wallets/recover?mnemonic=${encodeURIComponent(inputMnemonic)}`
+        `https://moply.me/sock/wallets/recover?mnemonic=${encodeURIComponent(inputMnemonic)}`
       );
       const recoverData = await recoverRes.json();
       const wallet = JSON.parse(recoverData.wallet);
@@ -101,7 +101,7 @@ export default function VerifyMnemonicScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+       // keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}

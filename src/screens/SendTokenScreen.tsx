@@ -33,7 +33,7 @@ export default function SendTokenScreen() {
   useEffect(() => {
     const fetchRecentAddresses = async () => {
       try {
-        const res = await fetch('http://43.201.26.30:8080/wallets/recent');
+        const res = await fetch('https://moply.me/sock/wallets/recent');
         const data: RecentAddress[] = await res.json();
         setRecentAddresses(data);
       } catch (error) {
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   qrIcon: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
   },
   label: {
     fontSize: 14,
@@ -178,8 +178,8 @@ const styles = StyleSheet.create({
     height: 44,
   },
   pasteIcon: {
-    width: 15,
-    height: 15,
+    width: 20,
+    height: 20,
     tintColor: '#666',
   },
   errorText: {

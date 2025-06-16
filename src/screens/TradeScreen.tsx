@@ -35,7 +35,7 @@ export default function TradeScreen() {
         setMyAddress(address);
 
         const res = await fetch(
-          `http://43.201.26.30:8080/wallets/history/go?address=${address}`
+          `https://moply.me/sock/wallets/history/go?address=${address}`
         );
         const data = await res.json();
 

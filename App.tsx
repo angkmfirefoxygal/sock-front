@@ -8,13 +8,13 @@ import * as Keychain from 'react-native-keychain';
 
 export default function App() {
   // 앱 배포할땐 삭제해야함 useEffect!!!!!!!!
-  useEffect(() => {
-    const clearAsyncStorage = async () => {
-      await AsyncStorage.clear();
-      await Keychain.resetGenericPassword({ service: 'wallet' });
-    };
-    clearAsyncStorage();
-  }, []);
+  // useEffect(() => {
+  //   const clearAsyncStorage = async () => {
+  //     await AsyncStorage.clear();
+  //     await Keychain.resetGenericPassword({ service: 'wallet' });
+  //   };
+  //   clearAsyncStorage();
+  // }, []);
 
   return (
     <SafeAreaProvider>

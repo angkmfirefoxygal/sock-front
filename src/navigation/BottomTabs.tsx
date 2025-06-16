@@ -17,8 +17,8 @@ export default function BottomTabs() {
         tabBarIcon: ({ focused }) => {
           let iconSource;
           let iconStyle: ImageStyle = {
-            width: 20,
-            height: 20,
+            width: 25,
+            height: 25,
             tintColor: focused ? '#002366' : 'black',
             marginBottom: -12,
           };
@@ -28,8 +28,8 @@ export default function BottomTabs() {
               iconSource = require('../assets/icon/home_icon.png');
               iconStyle = {
                 ...iconStyle,
-                width: 24,
-                height: 24,
+                width: 29,
+                height: 29,
                 marginTop: 1,
               };
               break;

@@ -50,7 +50,7 @@ export default function ConfirmSendScreen() {
 
       // ✅ 서버에서 송금 가능 여부 최종 확인
       const checkRes = await fetch(
-        `http://43.201.26.30:8080/wallets/check?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`
+        `https://moply.me/sock/wallets/check?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`
       );
       const checkData = await checkRes.json();
 
@@ -60,7 +60,7 @@ export default function ConfirmSendScreen() {
       }
 
       // ✅ 실제 송금 요청
-      const sendUrl = `http://43.201.26.30:8080/wallets/send?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`;
+      const sendUrl = `https://moply.me/sock/wallets/send?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`;
       console.log('📡 송금 요청:', sendUrl);
 
       const sendRes = await fetch(sendUrl);

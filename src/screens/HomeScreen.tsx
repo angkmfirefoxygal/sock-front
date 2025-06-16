@@ -21,7 +21,7 @@ export default function HomeScreen() {
 
   const handleFetchNetworkInfo = async () => {
     try {
-      const res = await fetch('http://43.201.26.30:8080/wallets/network');
+      const res = await fetch('https://moply.me/sock/wallets/network');
       const data = await res.json();
       setNetworkInfo(data);
       setNetworkInfoModalVisible(true);
@@ -43,7 +43,7 @@ export default function HomeScreen() {
         const storedAddress = creds.password;
         setAddress(storedAddress);
 
-        const balRes = await fetch(`http://43.201.26.30:8080/wallets/balance?address=${storedAddress}`);
+        const balRes = await fetch(`https://moply.me/sock/wallets/balance?address=${storedAddress}`);
         const balData = await balRes.json();
         const numericBalance = Number(balData.balance);
         const balanceStr = `${numericBalance.toFixed(6)} POL`;
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 25,
+    height: 25,
   },
   accountTextContainer: {
     alignItems: 'center',

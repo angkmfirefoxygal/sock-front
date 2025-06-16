@@ -18,7 +18,7 @@ export default function EnterPasswordScreen() {
   const handleConfirm = async () => {
     setError('');
     try {
-      const res = await fetch('http://43.201.26.30:8080/wallets/verify-password', {
+      const res = await fetch('https://moply.me/sock/wallets/verify-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),

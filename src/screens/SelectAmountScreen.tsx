@@ -41,7 +41,7 @@ export default function SelectAmountScreen() {
 
   const fetchGas = async () => {
     try {
-      const res = await fetch('http://43.201.26.30:8080/wallets/gas');
+      const res = await fetch('https://moply.me/sock/wallets/gas');
       const data = await res.json();
       const gasGwei = parseFloat(data.gas_price_gwei);
       const fee = (gasGwei * 21000) / 1e9;

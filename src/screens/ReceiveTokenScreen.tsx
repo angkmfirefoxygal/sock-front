@@ -32,7 +32,7 @@ export default function ReceiveTokenScreen() {
 
         if (creds) {
           setWalletAddress(creds.password);
-          setQrUri(`http://43.201.26.30:8080/wallets/qrcode?address=${creds.password}`);
+          setQrUri(`https://moply.me/sock/wallets/qrcode?address=${creds.password}`);
         } else {
           console.warn('저장된 주소가 없습니다.');
         }
@@ -53,37 +53,39 @@ export default function ReceiveTokenScreen() {
     }
   };
 
+  const handleShare = async () => {
+    if (!qrUri) return;
 
-const handleShare = async () => {
-  if (!qrUri) return;
+    try {
+      const fileName = 'qr_share.png';
+      const path = `${RNFS.CachesDirectoryPath}/${fileName}`;
 
-  try {
-    const fileName = 'qr_share.png';
-    const path = `${RNFS.CachesDirectoryPath}/${fileName}`;
+      const downloadResult = await RNFS.downloadFile({
+        fromUrl: qrUri,
+        toFile: path,
+      }).promise;
 
-    // 1. 다운로드
-    const downloadResult = await RNFS.downloadFile({
-      fromUrl: qrUri,
-      toFile: path,
-    }).promise;
-
-    if (downloadResult.statusCode === 200) {
-      // 2. 공유 시트 열기
-      await Share.open({
-        url: 'file://' + path,
-        type: 'image/png',
-        failOnCancel: false,
-      });
-    } else {
-      console.warn('QR 다운로드 실패');
+      if (downloadResult.statusCode === 200) {
+        await Share.open({
+          url: 'file://' + path,
+          type: 'image/png',
+          failOnCancel: false,
+        });
+      } else {
+        console.warn('QR 다운로드 실패');
+      }
+    } catch (err) {
+      console.error('공유 실패:', err);
     }
-  } catch (err) {
-    console.error('공유 실패:', err);
-  }
-};
+  };
 
   const handleClose = () => {
     navigation.goBack();
+  };
+
+  const renderFormattedAddress = (address: string) => {
+    if (address.length <= 40) return address;
+    return `${address.slice(0, 8)}...${address.slice(-8)}`;
   };
 
   return (
@@ -107,10 +109,10 @@ const handleShare = async () => {
         )}
       </View>
 
-      {/* 주소 텍스트 + 복사 아이콘 */}
-      <View style={styles.addressRow}>
+      {/* 주소 줄임 표시 + 복사 */}
+      <View style={styles.addressWrapper}>
         <Text style={styles.addressText}>
-          {walletAddress ? walletAddress : '로딩 중...'}
+          {walletAddress ? renderFormattedAddress(walletAddress) : '로딩 중...'}
         </Text>
         <TouchableOpacity onPress={handleCopy}>
           <Image
@@ -157,20 +159,22 @@ const styles = StyleSheet.create({
     height: 160,
     resizeMode: 'contain',
   },
-  addressRow: {
+  addressWrapper: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 32,
   },
   addressText: {
     fontSize: 14,
     color: '#000',
+    textAlign: 'center',
+    lineHeight: 20,
     marginRight: 8,
   },
   copyIcon: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
     tintColor: '#333',
   },
 });
