@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootStackParamList'; // 경로 맞게 수정
 
 const settings = [
   { title: '일반', subtitle: '통화 변환, 언어 변경' },
@@ -20,6 +23,7 @@ const settings = [
 
 export default function SettingScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -27,14 +31,22 @@ export default function SettingScreen() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: 16 + insets.top, // ✅ 상단 safe area 반영
+            paddingTop: 16 + insets.top,
             paddingBottom: 40 + insets.bottom,
           },
         ]}
       >
         <Text style={styles.title}>설정</Text>
         {settings.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.row}>
+          <TouchableOpacity
+            key={index}
+            style={styles.row}
+            onPress={() => {
+              if (item.title === '도움말 다시 보기') {
+                navigation.navigate('HelpScreen'); // ✅ HelpScreen으로 이동
+              }
+            }}
+          >
             <View>
               <Text style={styles.label}>{item.title}</Text>
               {!!item.subtitle && <Text style={styles.sub}>{item.subtitle}</Text>}

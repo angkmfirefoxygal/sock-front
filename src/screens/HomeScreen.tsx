@@ -57,7 +57,6 @@ export default function HomeScreen() {
           },
         ]);
 
-        // ✅ 잔액을 AsyncStorage에 저장
         await AsyncStorage.setItem('walletBalance', String(numericBalance));
       } catch (error) {
         console.error('❌ 주소 또는 잔액 조회 실패:', error);
@@ -91,9 +90,13 @@ export default function HomeScreen() {
               {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '주소 로딩 중...'}
             </Text>
           </View>
+
+          <View style={styles.rightSpacer} />
         </View>
 
+        <View style={styles.tokenSection}>
         <Text style={styles.sectionTitle}>보유 토큰</Text>
+        </View>
         <FlatList
           data={tokens}
           renderItem={renderItem}
@@ -121,28 +124,43 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, padding: 24 },
+   tokenSection: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    textAlign: 'center',
+  },
   header: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 24,
-    justifyContent: 'center',
   },
   iconWrapper: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    padding: 4,
+    width: 25,
+    height: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
     width: 25,
     height: 25,
   },
   accountTextContainer: {
+    flex: 1,
     alignItems: 'center',
-    alignSelf: 'center',
+  },
+  rightSpacer: {
+    width: 25,
   },
   accountName: { fontWeight: 'bold', fontSize: 16 },
   accountAddress: { color: '#888', fontSize: 12, marginTop: 2 },
-  sectionTitle: { marginVertical: 12, fontWeight: 'bold', fontSize: 15 },
   tokenItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',

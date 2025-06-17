@@ -1,50 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, PermissionsAndroid, Platform, Alert } from 'react-native';
+import { Image, View,Text, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
 import Header from '../components/Header';
 
 export default function QRScannerScreen() {
-  const [hasPermission, setHasPermission] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const requestCameraPermission = async () => {
+    const requestPermission = async () => {
       if (Platform.OS === 'android') {
         try {
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.CAMERA,
             {
               title: '카메라 권한 요청',
-              message: 'QR 스캔을 위해 카메라 권한이 필요합니다.',
-              buttonNeutral: '나중에',
-              buttonNegative: '거부',
-              buttonPositive: '허용',
+              message: 'QR 스캔 기능을 위해 카메라 권한이 필요합니다.',
+              buttonPositive: '확인',
             }
           );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('✅ 카메라 권한 허용됨');
-            setHasPermission(true);
-          } else {
-            console.log('❌ 카메라 권한 거부됨');
-            Alert.alert('카메라 권한이 거부되었습니다.');
-          }
-        } catch (err) {
-          console.warn(err);
+          setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
+        } catch (e) {
+          console.warn('카메라 권한 요청 실패:', e);
+          setHasPermission(false);
         }
+      } else {
+        setHasPermission(true);
       }
     };
 
-    requestCameraPermission();
+    requestPermission();
   }, []);
 
   return (
     <View style={styles.container}>
       <Header title="QR 스캐너" />
-      <View style={styles.content}>
-        <Text style={styles.text}>
-          {hasPermission
-            ? '카메라 권한 허용됨. 나중에 스캐너 추가할 수 있어요.'
-            : '카메라 권한 확인 중...'}
-        </Text>
-      </View>
+      <View style={styles.circle}>
+      <Image
+        source={require('../assets/logo/SOCK_logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+    </View>
+      
+      <Text style={styles.info}>
+        현재는 QR 코드 스캔 기능이 비활성화되어 있습니다. {'\n'}
+        추후 업데이트에서 연결될 예정입니다.
+      </Text>
+      {hasPermission === false && (
+        <Text style={styles.error}>카메라 권한이 허용되지 않았습니다.</Text>
+      )}
     </View>
   );
 }
@@ -52,17 +55,45 @@ export default function QRScannerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 24,
     backgroundColor: '#fff',
+    alignItems: 'center',
   },
-  content: {
-    flex: 1,
+  circle: {
+    width: 160,
+    height: 160,
+    backgroundColor: '#002366',
+    borderRadius: 80,
+    marginTop: 60,
+    marginBottom: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
   },
-  text: {
-    fontSize: 16,
-    color: '#666',
+  logoText: {
+    fontSize: 60,
+    color: '#fff',
+  },
+  label: {
+    fontSize: 14,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+    color: '#000',
+  },
+  info: {
+    fontSize: 14,
+    color: '#444',
     textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 12,
+  },
+  error: {
+    color: 'red',
+    fontSize: 13,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  logo: {
+    width: 120,
+    height: 120,
   },
 });

@@ -15,6 +15,7 @@ import GenerateMnemonicScreen from '../screens/GenerateMnemonicScreen';
 import ConfirmSendScreen from '../screens/ConfirmSendScreen';
 import SetPasswordScreen from '../screens/SetPasswordScreen';
 import EnterPasswordScreen from '../screens/EnterPasswordScreen';
+import HelpScreen from '../screens/HelpScreen';
 import { RootStackParamList } from './RootStackParamList';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -46,6 +47,7 @@ export default function AppNavigator() {
         <Stack.Screen name="QRScanner" component={QRScannerScreen} />
         <Stack.Screen name="GenerateMnemonic" component={GenerateMnemonicScreen} />
         <Stack.Screen name="VerifyMnemonic" component={VerifyMnemonicScreen} />
+        <Stack.Screen name="HelpScreen" component={HelpScreen} />
         <Stack.Screen name="ConfirmSend" component={ConfirmSendScreen} />
       </Stack.Navigator>
   

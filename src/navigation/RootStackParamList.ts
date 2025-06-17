@@ -19,4 +19,5 @@ export type RootStackParamList = {
     gasFee : string;
     balance : string;
   };
+  HelpScreen: undefined;
 };
