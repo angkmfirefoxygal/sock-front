@@ -1,4 +1,3 @@
-// src/screens/TradeScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,6 +7,7 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Keychain from 'react-native-keychain';
@@ -62,8 +62,7 @@ export default function TradeScreen() {
     const sign = isReceived ? '+' : '-';
     const color = isReceived ? '#067b1e' : '#D32F2F';
     const maskAddress = (addr: string) =>
-    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-
+      `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
     return (
       <View style={styles.card}>
@@ -71,7 +70,9 @@ export default function TradeScreen() {
           <Text style={styles.cardTitle}>{direction}</Text>
           <Text style={styles.cardDate}>{date}</Text>
         </View>
-        <Text style={[styles.cardAmount, { color }]}>{sign} {eth} POL </Text>
+        <Text style={[styles.cardAmount, { color }]}>
+          {sign} {eth} POL
+        </Text>
         <Text style={styles.cardSender}>From: {maskAddress(item.from_address)}</Text>
         <Text style={styles.cardSender}>To: {maskAddress(item.to_address)}</Text>
       </View>
@@ -107,7 +108,11 @@ export default function TradeScreen() {
             )}
             renderItem={renderItem}
             keyExtractor={item => item.hash}
-            contentContainerStyle={{ paddingBottom: 24 }}
+            contentContainerStyle={{ 
+              paddingTop: 8,   
+              paddingBottom: 24, 
+              paddingHorizontal: 8,  // ✅ 좌우 여백 추가로 카드 잘림 방지
+            }}
           />
         )}
       </View>
@@ -121,7 +126,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   container: {
-    padding: 20,
+    paddingTop:20,
+    paddingRight: 20,
+    paddingLeft: 20,
     flex: 1,
   },
   searchBar: {
@@ -152,6 +159,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
+    overflow: Platform.OS === 'android' ? 'visible' : 'hidden', // ✅ 그림자 잘리지 않도록 처리
   },
   cardHeader: {
     flexDirection: 'row',

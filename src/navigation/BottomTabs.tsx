@@ -21,6 +21,7 @@ export default function BottomTabs() {
             height: 25,
             tintColor: focused ? '#002366' : 'black',
             marginBottom: -12,
+            
           };
 
           switch (route.name) {

@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 const settings = [
   { title: '일반', subtitle: '통화 변환, 언어 변경' },
@@ -12,27 +19,41 @@ const settings = [
 ];
 
 export default function SettingScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>설정</Text>
-      {settings.map((item, index) => (
-        <TouchableOpacity key={index} style={styles.row}>
-          <View>
-            <Text style={styles.label}>{item.title}</Text>
-            {!!item.subtitle && <Text style={styles.sub}>{item.subtitle}</Text>}
-          </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: 16 + insets.top, // ✅ 상단 safe area 반영
+            paddingBottom: 40 + insets.bottom,
+          },
+        ]}
+      >
+        <Text style={styles.title}>설정</Text>
+        {settings.map((item, index) => (
+          <TouchableOpacity key={index} style={styles.row}>
+            <View>
+              <Text style={styles.label}>{item.title}</Text>
+              {!!item.subtitle && <Text style={styles.sub}>{item.subtitle}</Text>}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     backgroundColor: '#fff',
-    paddingTop: 80,
     paddingHorizontal: 20,
-    paddingBottom: 40,
     flexGrow: 1,
   },
   title: {
