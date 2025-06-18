@@ -63,7 +63,12 @@ export default function ConfirmSendScreen() {
       const sendUrl = `https://moply.me/sock/wallets/send?to=${toAddress}&amount=${amount}&private_key=${normalizedPrivateKey}`;
       console.log('📡 송금 요청:', sendUrl);
 
-      const sendRes = await fetch(sendUrl);
+      const sendRes = await fetch(sendUrl, {
+        method: 'GET',
+        headers: {
+          'X-User-Address': creds.password, // 지갑 주소를 헤더로 전송
+        },
+      });
       const sendData = await sendRes.json();
 
       if (sendRes.ok && sendData.tx_hash) {
