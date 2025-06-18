@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import CommonButton from '../components/CommonButton';
 import { RootStackParamList } from '../navigation/RootStackParamList';
+import * as Keychain from 'react-native-keychain';
 
 type RecentAddress = {
   address: string;
@@ -33,8 +34,13 @@ export default function SendTokenScreen() {
   useEffect(() => {
     const fetchRecentAddresses = async () => {
       try {
-        const res = await fetch('https://moply.me/sock/wallets/recent');
+        const creds = await Keychain.getGenericPassword({ service: 'wallet' });
+        if (!creds) throw new Error('저장된 지갑 주소 없음');
+
+        const userAddress = creds.password.toLowerCase(); // 또는 그냥 creds.password
+        const res = await fetch(`https://moply.me/sock/wallets/recent?user=${userAddress}`);
         const data: RecentAddress[] = await res.json();
+
         setRecentAddresses(data);
       } catch (error) {
         console.error('최근 주소 불러오기 실패:', error);

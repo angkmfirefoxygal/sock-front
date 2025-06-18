@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 36,
     fontSize: 14,
+    paddingVertical: 8,
   },
   searchIcon: {
     width: 16,
